@@ -34,27 +34,87 @@
         <div class="row">
             <div class="col-sm-12">
                 <div class="card">
-                    <div class="card-header">
-                        <h4>Penerimaan Barang</h4><br>
-                    </div>
                     <div class="card-body">
+
                         <div class="row">
-                            <div class="col-xl-1">
-                                <label>No.PB</label>
+                            <div class="col-3">
+                                <div class="mb-3">
+                                    <label class="form-label" for="no_mutasi">No. PB</label>
+                                    <?php
+                                    $date = date('d') . date('m') . date('Y');
+                                    $urutan = $this->db->where('tgl_pb', date('Y-m-d'))->get('penerimaan')->num_rows(); ?>
+                                    <input type="text" readonly class="form-control no_pb" value="PB-<?= date('d') . date('m') . date('y') . sprintf('%04d', $urutan + 1) ?>">
+                                </div>
                             </div>
-                            <div class="col-xl-3">
-                                <?php
-                                $date = date('d') . date('m') . date('Y');
-                                $urutan = $this->db->where('tgl_pb', date('Y-m-d'))->get('penerimaan')->num_rows(); ?>
-                                <input type="text" readonly class="form-control no_pb" value="PB-<?= date('d') . date('m') . date('y') . sprintf('%04d', $urutan + 1) ?>">
-                                <!-- <input type="text" class="form-control no_pb" value="PB-2311-000078"> -->
+                            <div class="col-3">
+                                <div class="mb-3">
+                                    <label class="form-label" for="no_mutasi">Tgl. PB</label>
+                                    <input type="date" value="<?= date('Y-m-d') ?>" class="form-control tgl_pb">
+                                </div>
                             </div>
-                            <div class="col-xl-1"></div>
-                            <div class="col-xl-2">
-                                <label>Type PPN </label>
+                            <div class="col-3">
+                                <div class="mb-3">
+                                    <label class="form-label" for="no_mutasi">No. Surat Jalan</label>
+                                    <input type="text" class="form-control srt_jln">
+                                </div>
                             </div>
-                            <div class="col-xl-5">
-                                <div class="row">
+                            <div class="col-3">
+                                <div class="mb-3">
+                                    <label class="form-label" for="no_mutasi">Tgl. Surat Jalan</label>
+                                    <input type="date" value="<?= date('Y-m-d') ?>" class="form-control tgl_srt_jln">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-3">
+                                <div class="mb-3">
+                                    <label class="form-label" for="no_mutasi">No. Faktur Pajak</label>
+                                    <input type="text" class="form-control fp">
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="mb-3">
+                                    <label class="form-label" for="no_mutasi">Tgl. Faktur Pajak</label>
+                                    <input type="date" value="<?= date('Y-m-d') ?>" class="form-control tgl_fp">
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="mb-3">
+                                    <label class="form-label" for="no_mutasi">Cara bayar</label>
+                                    <select name="" id="" class="form-control c_bayar" onchange="metode_bayar()">
+                                        <option value="Tunai">Tunai</option>
+                                        <option value="Kredit">Kredit</option>
+                                        <option value="Transfer">Transfer</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="mb-3">
+                                    <label class="form-label" for="no_mutasi">Tempo</label>
+                                    <input type="number" class="form-control tempo" readonly value="0">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-3">
+                                <div class="mb-3">
+                                    <label class="form-label" for="no_mutasi">Supplier</label>
+                                    <select name="" id="" class="form-control supplier select2" required>
+                                        <option value="">Pilih Supplier</option>
+                                        <?php
+                                        $this->db->where('nama_supplier !=', 'UMUM');
+                                        $supplier = $this->db->get('supplier')->result();
+
+                                        foreach ($supplier as $x) { ?>
+                                            <option value="<?= $x->kode_supplier ?>"><?= $x->nama_supplier ?></option>
+                                        <?php }
+                                        ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-5">
+                                <label class="form-label" for="no_mutasi">Type PPN</label>
+                                <div class="row mt-3">
                                     <div class="col">
                                         <div class="form-check radio radio-secondary"> <!-- non ppn 1, include 2,exclude 3 -->
                                             <input class="form-check-input ppn" id="radio21" type="radio" name="ppn" value="1">
@@ -75,125 +135,20 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="row mt-3">
-                            <div class="col-xl-1">
-                                <label>Tgl.PB</label>
-                            </div>
-                            <div class="col-xl-3">
-                                <input type="date" value="<?= date('Y-m-d') ?>" class="form-control tgl_pb">
-                            </div>
-                            <div class="col-xl-1"></div>
-                            <div class="col-xl-2">
-                                <label>No Faktur Pajak</label>
-                            </div>
-                            <div class="col-xl-3">
-                                <div class="row">
-                                    <div class="col">
-                                        <input type="text" class="form-control fp">
-                                    </div>
-                                    <!-- <div class="col">
-                                    <div class="form-check radio radio-secondary">
-                                        <input class="form-check-input pembayaran" id="radio22" type="radio" name="radio_pembayaran" value="CASH">
-                                        <label class="form-check-label" for="radio22">CASH </label>
-                                    </div>
-                                </div> -->
+                            <div class="col-4">
+                                <div class="mb-3">
+                                    <label class="form-label" for="no_mutasi">Keterangan</label>
+                                    <textarea name="" class="form-control keterangan" id="" cols="30" rows="2"></textarea>
                                 </div>
                             </div>
-                        </div>
-                        <div class="row mt-3">
-                            <div class="col-xl-1">
-                                <label>Supplier</label>
-                            </div>
-                            <div class="col-xl-3">
-                                <select name="" id="" class="form-control supplier select2" required>
-                                    <option value="">Pilih Supplier</option>
-                                    <?php
-                                    $this->db->where('nama_supplier !=', 'UMUM');
-                                    $supplier = $this->db->get('supplier')->result();
 
-                                    foreach ($supplier as $x) { ?>
-                                        <option value="<?= $x->kode_supplier ?>"><?= $x->nama_supplier ?></option>
-                                    <?php }
-                                    ?>
-                                </select>
-                            </div>
-                            <div class="col-xl-1"></div>
-                            <div class="col-xl-2">
-                                <label>Tgl Faktur Pajak</label>
-                            </div>
-                            <div class="col-xl-3">
-                                <div class="row">
-                                    <div class="col">
-                                        <input type="date" value="<?= date('Y-m-d') ?>" class="form-control tgl_fp">
-                                    </div>
-                                </div>
+                        </div>
+                        <div class="row text-end mt-1">
+                            <div class="mb-3">
+                                <label class="form-label" for="no_mutasi">Total</label>
+                                <h4 class="total_pb">Rp.0</h4>
                             </div>
                         </div>
-                        <div class="row mt-3">
-                            <div class="col-xl-1">
-                                <label>No Srt Jln</label>
-                            </div>
-                            <div class="col-xl-3">
-                                <input type="text" class="form-control srt_jln">
-                            </div>
-                            <div class="col-xl-1"></div>
-                            <div class="col-xl-2">
-                                <label>Keterangan</label>
-                            </div>
-                            <div class="col-xl-3">
-                                <div class="row">
-                                    <div class="col">
-                                        <textarea name="" class="form-control keterangan" id="" cols="30" rows="1"></textarea>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row mt-3">
-                            <div class="col-xl-1">
-                                <label>Tgl Srt Jln</label>
-                            </div>
-                            <div class="col-xl-3">
-                                <input type="date" value="<?= date('Y-m-d') ?>" class="form-control tgl_srt_jln">
-                            </div>
-                        </div>
-                        <div class="row mt-3">
-                            <div class="col-xl-1">
-                                <label>Cara Bayar</label>
-                            </div>
-                            <div class="col-xl-3">
-                                <!-- <input type="number" class="form-control c_bayar"> -->
-                                <select name="" id="" class="form-control c_bayar" onchange="metode_bayar()">
-                                    <option value="Tunai">Tunai</option>
-                                    <option value="Kredit">Kredit</option>
-                                    <option value="Transfer">Transfer</option>
-                                </select>
-                            </div>
-                            <div class="col-xl-3">
-                                <div class="row">
-                                    <div class="col-xl-3">
-                                        Tempo
-                                    </div>
-                                    <div class="col">
-                                        <input type="number" class="form-control tempo" readonly value="0">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-header">
-                        <div class="row">
-                            <div class="col-xl-10">
-                                <h4>Penerimaan Barang</h4><br>
-                            </div>
-                            <div class="col-xl-2">
-                                <h4 class="total_pb">Rp.0</h4><br>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body">
                         <div class="table-responsive">
                             <table class="table display">
                                 <thead>
@@ -753,25 +708,54 @@
 
         var harga;
 
-        if (selectedOption == "konv") {
-            jumlah = stok; //OK
-            harga = hppKonv; //OK
-        } else if (selectedOption == "kecil" && qtyKonv) {
-            jumlah = Math.floor(stok / qtyKonv); // OK
-            harga = hppKecil; // OK
-        } else if (selectedOption == "kecil" && !qtyKonv) {
-            jumlah = stok;
-            harga = hppKecil; // OK
-        } else if (selectedOption == "besar" && qtyKecil && qtyKonv) {
-            jumlah = Math.floor(stok / qtyKecil / qtyKonv); // OK
-            harga = hppBesar; // OK
-        } else if (selectedOption == "besar" && qtyKecil && !qtyKonv) {
-            jumlah = Math.floor(stok / qtyKecil);
-            harga = hppBesar; // OK
-        } else if (selectedOption == "besar" && !qtyKecil && !qtyKonv) {
-            jumlah = Math.floor(stok / qtyBesar);
-            harga = hppBesar; // OK
+        // if (selectedOption == "konv") {
+        //     jumlah = stok; //OK
+        //     harga = hppKonv; //OK
+        // } else if (selectedOption == "kecil" && qtyKonv) {
+        //     jumlah = Math.floor(stok / qtyKonv); // OK
+        //     harga = hppKecil; // OK
+        // } else if (selectedOption == "kecil" && !qtyKonv) {
+        //     jumlah = stok;
+        //     harga = hppKecil; // OK
+        // } else if (selectedOption == "besar" && qtyKecil && qtyKonv) {
+        //     jumlah = Math.floor(stok / qtyKecil / qtyKonv); // OK
+        //     harga = hppBesar; // OK
+        // } else if (selectedOption == "besar" && qtyKecil && !qtyKonv) {
+        //     jumlah = Math.floor(stok / qtyKecil);
+        //     harga = hppBesar; // OK
+        // } else if (selectedOption == "besar" && !qtyKecil && !qtyKonv) {
+        //     jumlah = Math.floor(stok / qtyBesar);
+        //     harga = hppBesar; // OK
+        // }
+
+        switch (selectedOption) {
+            case "konv":
+                jumlah = stok;
+                harga = hppKonv;
+                break;
+            case "kecil":
+                if (qtyKonv) {
+                    jumlah = Math.floor(stok / qtyKonv);
+                    harga = hppKecil;
+                } else {
+                    jumlah = stok;
+                    harga = hppKecil;
+                }
+                break;
+            case "besar":
+                if (qtyKecil && qtyKonv) {
+                    jumlah = Math.floor(stok / qtyKecil / qtyKonv);
+                    harga = hppBesar;
+                } else if (qtyKecil && !qtyKonv) {
+                    jumlah = Math.floor(stok / qtyKecil);
+                    harga = hppBesar;
+                } else if (!qtyKecil && !qtyKonv) {
+                    jumlah = Math.floor(stok / qtyBesar);
+                    harga = hppBesar;
+                }
+                break;
         }
+
 
         row.find('[name="harga[]"]').val(harga.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1."));
         row.find('[name="netto[]"]').val(harga.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1."));
