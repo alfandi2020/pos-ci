@@ -54,7 +54,7 @@ class Inventori extends CI_Controller
         $data = [
             "categories" => $this->db->order_by('nama_kategori', 'ASC')->get('kategori')->result(),
             "gudang" => $this->db->order_by('nama', 'ASC')->get('gudang')->result(),
-            "barang" => $this->db->group_by('nama')->order_by('nama', 'ASC')->get('barang')->result(),
+            "barang" => $this->db->where('id_gudang', '7')->order_by('nama', 'ASC')->get('barang')->result(),
             'title' => 'inventori'
         ];
 
@@ -557,7 +557,7 @@ class Inventori extends CI_Controller
         $data = [
             "categories" => $this->db->order_by('nama_kategori', 'ASC')->get('kategori')->result(),
             "gudang" => $this->db->order_by('nama', 'ASC')->get('gudang')->result(),
-            "barang" => $this->db->order_by('nama', 'ASC')->get('barang')->result(),
+            "barang" => $this->db->where('id_gudang', '7')->order_by('nama', 'ASC')->get('barang')->result(),
         ];
 
         if (!empty($kelompok_barang) && (empty($barang) || empty($barang2) || empty($gudang1) || empty($gudang2) || empty($input_nama_barang))) {
@@ -1298,43 +1298,117 @@ class Inventori extends CI_Controller
     public function transaksi_item()
     {
         $id_barang = $this->input->post('item_barang');
-
-        // print_r($id_barang);
-        // exit;
+        $id_gudang = $this->input->post('gudang');
 
         $barang = $this->db->select('nama')->where('id', $id_barang)->get('barang')->row_array();
 
         $start_date = $this->input->post('tanggal_dari') . " 00:00:00";
         $end_date = $this->input->post('tanggal_sampai') . " 23:59:59";
 
-        $this->db->select('pl.id_barang, pl.nama_barang, pl.satuan, pl.qty_pb as qty, pl.harga_satuan, pl.jumlah, pl.date_created, "Penerimaan" as source, satuan as satuan_nama, no_pb as nomor, nama as kasir, nama_supplier as customer');
-        $this->db->from('penerimaan_list pl');
-        $this->db->join('penerimaan p', 'pl.id_pb = p.id_penerimaan', 'left'); // JOIN dengan tabel satuan
-        $this->db->join('users u', 'p.user_input = u.id', 'left'); // JOIN dengan tabel satuan
-        $this->db->join('supplier sup', 'p.supplier = sup.kode_supplier', 'left'); // JOIN dengan tabel satuan
-        $this->db->where('pl.id_barang', $id_barang);
-        $this->db->where('pl.date_created >=', $start_date);
-        $this->db->where('pl.date_created <=', $end_date);
+        if (!$id_gudang or $id_gudang == "7") {
 
-        $query1 = $this->db->get_compiled_select();
+            // query penerimaan
+            $this->db->select('pl.id_barang, pl.nama_barang, pl.satuan, pl.qty_pb as qty, pl.date_created, "Penerimaan" as source, satuan as satuan_nama, no_pb as nomor, nama as kasir, nama_supplier as customer, stok_awal as stok_awal');
+            $this->db->from('penerimaan_list pl');
+            $this->db->join('penerimaan p', 'pl.id_pb = p.id_penerimaan', 'left'); // JOIN dengan tabel satuan
+            $this->db->join('users u', 'p.user_input = u.id', 'left'); // JOIN dengan tabel satuan
+            $this->db->join('supplier sup', 'p.supplier = sup.kode_supplier', 'left'); // JOIN dengan tabel satuan
+            $this->db->where('pl.id_barang', $id_barang);
+            $this->db->where('pl.gudang', $id_gudang);
+            $this->db->where('pl.date_created >=', $start_date);
+            $this->db->where('pl.date_created <=', $end_date);
 
-        $this->db->select('ti.kd_barang, ti.barang as nama_barang, ti.satuan, (qty * qty_satuan) as qty, ti.harga_satuan, ti.jumlah, ti.date_created, "Transaksi" as source, ti.satuan as satuan_nama, no_struk as nomor, nama as kasir, nama_toko as customer');
-        $this->db->from('transaksi_item ti');
-        $this->db->join('transaksi t', 'ti.id_transaksi = t.id', 'left'); // JOIN dengan tabel satuan
-        $this->db->join('users u', 't.kasir = u.id', 'left'); // JOIN dengan tabel satuan
-        $this->db->join('customers cus', 't.pelanggan = cus.id_customer', 'left'); // JOIN dengan tabel satuan
-        $this->db->where('ti.kd_barang', $id_barang);
-        $this->db->where('ti.date_created >=', $start_date);
-        $this->db->where('ti.date_created <=', $end_date);
+            $query1 = $this->db->get_compiled_select();
 
-        $query2 = $this->db->get_compiled_select();
+            // query transaksi
+            $this->db->select('ti.kd_barang, ti.barang as nama_barang, ti.satuan, (qty * qty_satuan) as qty, ti.date_created, "Transaksi" as source, ti.satuan as satuan_nama, no_struk as nomor, nama as kasir, nama_toko as customer, "-" as stok_awal');
+            $this->db->from('transaksi_item ti');
+            $this->db->join('transaksi t', 'ti.id_transaksi = t.id', 'left'); // JOIN dengan tabel satuan
+            $this->db->join('users u', 't.kasir = u.id', 'left'); // JOIN dengan tabel satuan
+            $this->db->join('customers cus', 't.pelanggan = cus.id_customer', 'left'); // JOIN dengan tabel satuan
+            $this->db->where('ti.kd_barang', $id_barang);
+            $this->db->where('ti.date_created >=', $start_date);
+            $this->db->where('ti.date_created <=', $end_date);
 
-        $final_query = $this->db->query($query1 . ' UNION ' . $query2 . ' ORDER BY date_created DESC');
-        $result = $final_query->result();
+            $query2 = $this->db->get_compiled_select();
+
+            // query stock opname
+            $this->db->select('sop_d.id_barang, b.nama as nama_barang, sop_d.satuan, qty_fisik as qty, sop_d.created_at as date_created, "Stock opname" as source, sop_d.satuan as satuan_nama, no_stock_opname as nomor, u.nama as kasir, "-" as customer, qty_sistem as stok_awal');
+            $this->db->from('stock_opname_details sop_d');
+            $this->db->join('stock_opname s', 'sop_d.id_stock_opname = s.id', 'left'); // JOIN dengan tabel satuan
+            $this->db->join('users u', 's.created_by = u.id', 'left'); // JOIN dengan tabel satuan
+            $this->db->join('barang b', 'sop_d.id_barang = b.id', 'left'); // JOIN dengan tabel satuan
+            $this->db->where('sop_d.id_barang', $id_barang);
+            $this->db->where('sop_d.created_at >=', $start_date);
+            $this->db->where('sop_d.created_at <=', $end_date);
+
+            $query3 = $this->db->get_compiled_select();
+
+            // query koreksi
+            $this->db->select('kor_d.id_barang, b.nama as nama_barang, kor_d.satuan, jumlah_koreksi as qty, kor_d.created_at as date_created, "Koreksi" as source, kor_d.satuan as satuan_nama, no_koreksi as nomor, u.nama as kasir, "-" as customer, stok_awal');
+            $this->db->from('koreksi_details kor_d');
+            $this->db->join('koreksi s', 'kor_d.id_koreksi = s.id', 'left'); // JOIN dengan tabel satuan
+            $this->db->join('users u', 's.created_by = u.id', 'left'); // JOIN dengan tabel satuan
+            $this->db->join('barang b', 'kor_d.id_barang = b.id', 'left'); // JOIN dengan tabel satuan
+            $this->db->where('kor_d.id_barang', $id_barang);
+            $this->db->where('kor_d.created_at >=', $start_date);
+            $this->db->where('kor_d.created_at <=', $end_date);
+
+            $query4 = $this->db->get_compiled_select();
+
+            // query mutasi
+            $this->db->select('mut_d.id_barang, b.nama as nama_barang, mut_d.satuan, jumlah as qty, mut_d.created_at as date_created, "Mutasi" as source, mut_d.satuan as satuan_nama, no_mutasi as nomor, u.nama as kasir, "-" as customer, mut_d.stok as stok_awal');
+            $this->db->from('mutasi_details mut_d');
+            $this->db->join('mutasi s', 'mut_d.id_mutasi = s.id', 'left'); // JOIN dengan tabel satuan
+            $this->db->join('users u', 's.created_by = u.id', 'left'); // JOIN dengan tabel satuan
+            $this->db->join('barang b', 'mut_d.id_barang = b.id', 'left'); // JOIN dengan tabel satuan
+            $this->db->where('mut_d.id_barang', $id_barang);
+            if ($id_gudang == "7") {
+                $this->db->where('s.id_gudang_tujuan', '7');
+            }
+            $this->db->where('mut_d.created_at >=', $start_date);
+            $this->db->where('mut_d.created_at <=', $end_date);
+
+            $query5 = $this->db->get_compiled_select();
+
+            $final_query = $this->db->query($query1 . ' UNION ' . $query2 . ' UNION ' . $query3 . ' UNION ' . $query4 . ' UNION ' . $query5 . ' ORDER BY date_created DESC');
+
+            $result = $final_query->result();
+        } else {
+
+            // query penerimaan
+            $this->db->select('pl.id_barang, pl.nama_barang, pl.satuan, pl.qty_pb as qty, pl.date_created, "Penerimaan" as source, satuan as satuan_nama, no_pb as nomor, nama as kasir, nama_supplier as customer, stok_awal as stok_awal');
+            $this->db->from('penerimaan_list pl');
+            $this->db->join('penerimaan p', 'pl.id_pb = p.id_penerimaan', 'left'); // JOIN dengan tabel satuan
+            $this->db->join('users u', 'p.user_input = u.id', 'left'); // JOIN dengan tabel satuan
+            $this->db->join('supplier sup', 'p.supplier = sup.kode_supplier', 'left'); // JOIN dengan tabel satuan
+            $this->db->where('pl.id_barang', $id_barang);
+            $this->db->where('pl.gudang', $id_gudang);
+            $this->db->where('pl.date_created >=', $start_date);
+            $this->db->where('pl.date_created <=', $end_date);
+
+            $query1 = $this->db->get_compiled_select();
+
+            // query mutasi
+            $this->db->select('mut_d.id_barang, b.nama as nama_barang, mut_d.satuan, jumlah as qty, mut_d.created_at as date_created, "Mutasi" as source, mut_d.satuan as satuan_nama, no_mutasi as nomor, u.nama as kasir, "-" as customer, mut_d.stok as stok_awal');
+            $this->db->from('mutasi_details mut_d');
+            $this->db->join('mutasi s', 'mut_d.id_mutasi = s.id', 'left'); // JOIN dengan tabel satuan
+            $this->db->join('users u', 's.created_by = u.id', 'left'); // JOIN dengan tabel satuan
+            $this->db->join('barang b', 'mut_d.id_barang = b.id', 'left'); // JOIN dengan tabel satuan
+            $this->db->where('mut_d.id_barang', $id_barang);
+            $this->db->where('s.id_gudang_tujuan', $id_gudang);
+            $this->db->where('mut_d.created_at >=', $start_date);
+            $this->db->where('mut_d.created_at <=', $end_date);
+
+            $query5 = $this->db->get_compiled_select();
+
+            $final_query = $this->db->query($query1 . ' UNION ' . $query5 . ' ORDER BY date_created DESC');
+
+            $result = $final_query->result();
+        }
 
         if ($this->input->post('submit') == "cetak_excel") {
-            $final_query = $this->db->query($query1 . ' UNION ' . $query2 . ' ORDER BY date_created ASC');
-            $result = $final_query->result();
+
             require_once(APPPATH . 'libraries/PHPExcel/IOFactory.php');
 
             $excel = new PHPExcel();
@@ -1444,9 +1518,6 @@ class Inventori extends CI_Controller
             exit;
         } else {
 
-            $final_query = $this->db->query($query1 . ' UNION ' . $query2 . ' ORDER BY date_created DESC');
-            $result = $final_query->result();
-
             if (!$result) {
 
                 $this->session->set_flashdata('message_name', '<div class="alert alert-warning alert-dismissible fade show" role="alert">
@@ -1455,6 +1526,7 @@ class Inventori extends CI_Controller
 
                 redirect($_SERVER['HTTP_REFERER']);
             } else {
+
                 $data = [
                     'lists' => $result
                 ];

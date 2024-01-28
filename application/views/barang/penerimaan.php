@@ -1,17 +1,26 @@
+<style>
+    .table th,
+    .table td {
+        padding: 0rem;
+    }
+</style>
 <div class="page-body">
     <div class="container-fluid">
         <div class="page-title">
             <br><br>
             <div class="row">
                 <div class="col-6">
-                    <h4>penerimaan</h4>
+                    <h4>Penerimaan</h4>
                 </div>
                 <div class="col-6">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="index.html">
+                        <li class="breadcrumb-item">
+                            <a href="index.html">
                                 <svg class="stroke-icon">
                                     <use href="<?= base_url() ?>assets/svg/icon-sprite.svg#stroke-home"></use>
-                                </svg></a></li>
+                                </svg>
+                            </a>
+                        </li>
                         <li class="breadcrumb-item">Dashboard</li>
                         <li class="breadcrumb-item active">Default </li>
                     </ol>
@@ -20,420 +29,430 @@
         </div>
     </div>
     <?php
-    if ($this->session->flashdata('msg') == 'double_satuan') { ?>
-        <script>
-            $(document).ready(function() {
-                swal({
-                    title: "Opss",
-                    text: "Data <?= $this->session->flashdata('msg_val') ?> tidak boleh sama",
-                    icon: "warning",
-                })
-            })
-        </script>
-    <?php
-    } ?>
-    <!-- Container-fluid starts-->
-    <div class="container-fluid">
-        <?php
-        if ($this->uri->segment(2) == 'add_pb') { ?>
-            <div class="row">
-                <div class="col-sm-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <h4>Penerimaan Barang</h4><br>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-xl-1">
-                                    <label>No.PB</label>
-                                </div>
-                                <div class="col-xl-3">
-                                    <?php
-                                    $date = date('d') . date('m') . date('Y');
-                                    $urutan = $this->db->where('tgl_pb', date('Y-m-d'))->get('penerimaan')->num_rows(); ?>
-                                    <input type="text" readonly class="form-control no_pb" value="PB-<?= date('d') . date('m') . date('y') . sprintf('%04d', $urutan + 1) ?>">
-                                    <!-- <input type="text" class="form-control no_pb" value="PB-2311-000078"> -->
-                                </div>
-                                <div class="col-xl-1"></div>
-                                <div class="col-xl-2">
-                                    <label>Type PPN </label>
-                                </div>
-                                <div class="col-xl-5">
-                                    <div class="row">
-                                        <div class="col">
-                                            <div class="form-check radio radio-secondary"> <!-- non ppn 1, include 2,exclude 3 -->
-                                                <input class="form-check-input ppn" id="radio21" type="radio" name="ppn" value="1">
-                                                <label class="form-check-label" for="radio21">NonPPN </label>
-                                            </div>
-                                        </div>
-                                        <div class="col">
-                                            <div class="form-check radio radio-secondary">
-                                                <input class="form-check-input ppn" checked id="radio22" type="radio" name="ppn" value="2">
-                                                <label class="form-check-label" for="radio22">Include PPN </label>
-                                            </div>
-                                        </div>
-                                        <div class="col">
-                                            <div class="form-check radio radio-secondary">
-                                                <input class="form-check-input ppn" id="radio24" type="radio" name="ppn" value="3">
-                                                <label class="form-check-label" for="radio24">Exclude PPN </label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row mt-3">
-                                <div class="col-xl-1">
-                                    <label>Tgl.PB</label>
-                                </div>
-                                <div class="col-xl-3">
-                                    <input type="date" value="<?= date('Y-m-d') ?>" class="form-control tgl_pb">
-                                </div>
-                                <div class="col-xl-1"></div>
-                                <div class="col-xl-2">
-                                    <label>No Faktur Pajak</label>
-                                </div>
-                                <div class="col-xl-3">
-                                    <div class="row">
-                                        <div class="col">
-                                            <input type="text" class="form-control fp">
-                                        </div>
-                                        <!-- <div class="col">
-                                            <div class="form-check radio radio-secondary">
-                                                <input class="form-check-input pembayaran" id="radio22" type="radio" name="radio_pembayaran" value="CASH">
-                                                <label class="form-check-label" for="radio22">CASH </label>
-                                            </div>
-                                        </div> -->
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row mt-3">
-                                <div class="col-xl-1">
-                                    <label>Supplier</label>
-                                </div>
-                                <div class="col-xl-3">
-                                    <select name="" id="" class="form-control supplier select2" required>
-                                        <option value="">Pilih Supplier</option>
-                                        <?php
-                                        $this->db->where('nama_supplier !=', 'UMUM');
-                                        $supplier = $this->db->get('supplier')->result();
-
-                                        foreach ($supplier as $x) { ?>
-                                            <option value="<?= $x->kode_supplier ?>"><?= $x->nama_supplier ?></option>
-                                        <?php }
-                                        ?>
-                                    </select>
-                                </div>
-                                <div class="col-xl-1"></div>
-                                <div class="col-xl-2">
-                                    <label>Tgl Faktur Pajak</label>
-                                </div>
-                                <div class="col-xl-3">
-                                    <div class="row">
-                                        <div class="col">
-                                            <input type="date" value="<?= date('Y-m-d') ?>" class="form-control tgl_fp">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row mt-3">
-                                <div class="col-xl-1">
-                                    <label>No Srt Jln</label>
-                                </div>
-                                <div class="col-xl-3">
-                                    <input type="text" class="form-control srt_jln">
-                                </div>
-                                <div class="col-xl-1"></div>
-                                <div class="col-xl-2">
-                                    <label>Keterangan</label>
-                                </div>
-                                <div class="col-xl-3">
-                                    <div class="row">
-                                        <div class="col">
-                                            <textarea name="" class="form-control keterangan" id="" cols="30" rows="1"></textarea>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row mt-3">
-                                <div class="col-xl-1">
-                                    <label>Tgl Srt Jln</label>
-                                </div>
-                                <div class="col-xl-3">
-                                    <input type="date" value="<?= date('Y-m-d') ?>" class="form-control tgl_srt_jln">
-                                </div>
-                            </div>
-                            <div class="row mt-3">
-                                <div class="col-xl-1">
-                                    <label>Cara Bayar</label>
-                                </div>
-                                <div class="col-xl-3">
-                                    <input type="number" class="form-control c_bayar">
-                                </div>
-                                <div class="col-xl-3">
-                                    <div class="row">
-                                        <div class="col-xl-3">
-                                            Tempo
-                                        </div>
-                                        <div class="col">
-                                            <input type="text" class="form-control tempo">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+    if ($this->uri->segment(2) == "add_pb") {
+    ?>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Penerimaan Barang</h4><br>
                     </div>
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="row">
-                                <div class="col-xl-10">
-                                    <h4>Penerimaan Barang</h4><br>
-                                </div>
-                                <div class="col-xl-2">
-                                    <h4 class="total_pb">Rp.0</h4><br>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-xl-1">
+                                <label>No.PB</label>
+                            </div>
+                            <div class="col-xl-3">
+                                <?php
+                                $date = date('d') . date('m') . date('Y');
+                                $urutan = $this->db->where('tgl_pb', date('Y-m-d'))->get('penerimaan')->num_rows(); ?>
+                                <input type="text" readonly class="form-control no_pb" value="PB-<?= date('d') . date('m') . date('y') . sprintf('%04d', $urutan + 1) ?>">
+                                <!-- <input type="text" class="form-control no_pb" value="PB-2311-000078"> -->
+                            </div>
+                            <div class="col-xl-1"></div>
+                            <div class="col-xl-2">
+                                <label>Type PPN </label>
+                            </div>
+                            <div class="col-xl-5">
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="form-check radio radio-secondary"> <!-- non ppn 1, include 2,exclude 3 -->
+                                            <input class="form-check-input ppn" id="radio21" type="radio" name="ppn" value="1">
+                                            <label class="form-check-label" for="radio21">NonPPN </label>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-check radio radio-secondary">
+                                            <input class="form-check-input ppn" checked id="radio22" type="radio" name="ppn" value="2">
+                                            <label class="form-check-label" for="radio22">Include PPN </label>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="form-check radio radio-secondary">
+                                            <input class="form-check-input ppn" id="radio24" type="radio" name="ppn" value="3">
+                                            <label class="form-check-label" for="radio24">Exclude PPN </label>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table display">
-                                    <thead>
-                                        <tr>
-                                            <th width="50"></th>
-                                            <th width="80" scope="col">Nama Barang</th>
-                                            <th width="80" scope="col">Satuan</th>
-                                            <th width="80" scope="col">Qty PB</th>
-                                            <th width="80" scope="col">Harga Satuan</th>
-                                            <th width="80" scope="col">Dis1</th>
-                                            <th width="80" scope="col">Dis2</th>
-                                            <th width="80" scope="col">Dis.Rp</th>
-                                            <th width="80" scope="col">Harga Netto</th>
-                                            <th width="80" scope="col">Gudang</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="pb-wrapper">
-                                    </tbody>
-                                </table>
+                        <div class="row mt-3">
+                            <div class="col-xl-1">
+                                <label>Tgl.PB</label>
+                            </div>
+                            <div class="col-xl-3">
+                                <input type="date" value="<?= date('Y-m-d') ?>" class="form-control tgl_pb">
+                            </div>
+                            <div class="col-xl-1"></div>
+                            <div class="col-xl-2">
+                                <label>No Faktur Pajak</label>
+                            </div>
+                            <div class="col-xl-3">
+                                <div class="row">
+                                    <div class="col">
+                                        <input type="text" class="form-control fp">
+                                    </div>
+                                    <!-- <div class="col">
+                                    <div class="form-check radio radio-secondary">
+                                        <input class="form-check-input pembayaran" id="radio22" type="radio" name="radio_pembayaran" value="CASH">
+                                        <label class="form-check-label" for="radio22">CASH </label>
+                                    </div>
+                                </div> -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-xl-1">
+                                <label>Supplier</label>
+                            </div>
+                            <div class="col-xl-3">
+                                <select name="" id="" class="form-control supplier select2" required>
+                                    <option value="">Pilih Supplier</option>
+                                    <?php
+                                    $this->db->where('nama_supplier !=', 'UMUM');
+                                    $supplier = $this->db->get('supplier')->result();
+
+                                    foreach ($supplier as $x) { ?>
+                                        <option value="<?= $x->kode_supplier ?>"><?= $x->nama_supplier ?></option>
+                                    <?php }
+                                    ?>
+                                </select>
+                            </div>
+                            <div class="col-xl-1"></div>
+                            <div class="col-xl-2">
+                                <label>Tgl Faktur Pajak</label>
+                            </div>
+                            <div class="col-xl-3">
+                                <div class="row">
+                                    <div class="col">
+                                        <input type="date" value="<?= date('Y-m-d') ?>" class="form-control tgl_fp">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-xl-1">
+                                <label>No Srt Jln</label>
+                            </div>
+                            <div class="col-xl-3">
+                                <input type="text" class="form-control srt_jln">
+                            </div>
+                            <div class="col-xl-1"></div>
+                            <div class="col-xl-2">
+                                <label>Keterangan</label>
+                            </div>
+                            <div class="col-xl-3">
+                                <div class="row">
+                                    <div class="col">
+                                        <textarea name="" class="form-control keterangan" id="" cols="30" rows="1"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-xl-1">
+                                <label>Tgl Srt Jln</label>
+                            </div>
+                            <div class="col-xl-3">
+                                <input type="date" value="<?= date('Y-m-d') ?>" class="form-control tgl_srt_jln">
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-xl-1">
+                                <label>Cara Bayar</label>
+                            </div>
+                            <div class="col-xl-3">
+                                <!-- <input type="number" class="form-control c_bayar"> -->
+                                <select name="" id="" class="form-control c_bayar" onchange="metode_bayar()">
+                                    <option value="Tunai">Tunai</option>
+                                    <option value="Kredit">Kredit</option>
+                                    <option value="Transfer">Transfer</option>
+                                </select>
+                            </div>
+                            <div class="col-xl-3">
+                                <div class="row">
+                                    <div class="col-xl-3">
+                                        Tempo
+                                    </div>
+                                    <div class="col">
+                                        <input type="number" class="form-control tempo" readonly value="0">
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        <?php
-        } else { ?>
-            <div class="row">
-                <div class="col-sm-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <h4><?= $this->uri->segment(2) == 'approve' ? 'Approve ' . $approve_p['no_pb'] . ' - ' . $approve_p['total_barang'] . ' Barang' : 'List Pembelian ' ?></h4><br>
-                            <?php
-                            if ($this->uri->segment(2) != 'approve') { ?>
-                                <form action="<?= base_url('pembelian/change_date') ?>" method="POST">
-                                    <div class="row">
-                                        <div class="col-xl-1">
-                                            <a href="<?= base_url('pembelian/add_pb') ?>" class="btn btn-secondary">Add</a>
-                                        </div>
-
-                                        <div class="col-xl-2">
-                                            <!-- <label>Start Date</label> -->
-                                            <input type="date" class="form-control" value="<?= $this->session->userdata('date_pembelian') == null ? date('Y-m-d') : $this->session->userdata('date_pembelian') ?>" name="date" onchange="this.form.submit()">
-                                        </div>
-                                        -
-                                        <div class="col-xl-2">
-                                            <!-- <label>End Date</label> -->
-                                            <input type="date" class="form-control" value="<?= $this->session->userdata('date_pembelian2') == null ? date('Y-m-d') : $this->session->userdata('date_pembelian2') ?>" name="date2" onchange="this.form.submit()">
-                                        </div>
-                                    </div>
-                                    <!-- <div class="row mt-2">
-                                    <div class="col-xl-2">
-                                        <a href="<?= base_url('penjualan/excel') ?>" class="btn btn-primary btn-square">Export</a>
-                                    </div>
-                                </div> -->
-                                </form>
-                            <?php } ?>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-xl-10">
+                                <h4>Penerimaan Barang</h4><br>
+                            </div>
+                            <div class="col-xl-2">
+                                <h4 class="total_pb">Rp.0</h4><br>
+                            </div>
                         </div>
-                        <?php
-                        if ($this->uri->segment(2) != 'approve') { ?>
-                            <div class="card-body">
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table display">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th scope="col">Nama Barang</th>
+                                        <th scope="col">Satuan</th>
+                                        <th width="70" scope="col">Stok awal</th>
+                                        <th width="70" scope="col">Qty PB</th>
+                                        <th scope="col">Harga Satuan</th>
+                                        <th width="70" scope="col">Dis1</th>
+                                        <th width="70" scope="col">Dis2</th>
+                                        <th width="70" scope="col">Dis.Rp</th>
+                                        <th scope="col">Harga Netto</th>
+                                        <th scope="col">Gudang</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pb-wrapper">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <?php
+    } else if ($this->uri->segment(2) == "histori_pb") {
+    ?>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4><?= $this->uri->segment(2) == 'approve' ? 'Approve ' . $approve_p['no_pb'] . ' - ' . $approve_p['total_barang'] . ' Barang' : 'List Pembelian ' ?></h4><br>
+                        <form action="<?= base_url('pembelian/change_date') ?>" method="POST">
+                            <div class="row">
+                                <div class="col-lg-2">
+                                    <a href="<?= base_url('pembelian/add_pb') ?>" class="btn btn-secondary">Add</a>
+                                </div>
 
-                                <?= $this->session->flashdata('message_name') ?>
-                                <div class="table-responsive" style="height: 450px;">
-                                    <table class="display" id="t_barang">
-                                        <thead>
-                                            <tr>
-                                                <th width="400" scope="col">No.PB</th>
-                                                <th width="80" scope="col">Tanggal</th>
-                                                <th width="80" scope="col">Nama Supplier</th>
-                                                <th width="80" scope="col">Jumlah</th>
-                                                <th width="80" scope="col">Jumlah(FC)</th>
-                                                <th width="80" scope="col">Keterangan</th>
-                                                <th width="80" scope="col">Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php foreach ($penerimaan as $x) { ?>
-                                                <tr>
-                                                    <td>
-                                                        <?= $x->no_pb ?>
-                                                    </td>
-                                                    <td>
-                                                        <?= $x->tgl_pb ?>
-                                                    </td>
-                                                    <td>
-                                                        <?= $x->nama_supplier ?>
-                                                    </td>
-                                                    <td>
-                                                        <?= $x->total_barang ?>
-                                                    </td>
-                                                    <td>
-                                                        <?= $x->total_barang ?>
-                                                    </td>
-                                                    <td>
-                                                        <?= $x->keterangan ?>
-                                                    </td>
+                                <div class="col-lg-2">
+                                    <!-- <label>Start Date</label> -->
+                                    <input type="date" class="form-control" value="<?= $this->session->userdata('date_pembelian') == null ? date('Y-m-d') : $this->session->userdata('date_pembelian') ?>" name="date" onchange="this.form.submit()">
+                                </div>
+                                -
+                                <div class="col-lg-2">
+                                    <!-- <label>End Date</label> -->
+                                    <input type="date" class="form-control" value="<?= $this->session->userdata('date_pembelian2') == null ? date('Y-m-d') : $this->session->userdata('date_pembelian2') ?>" name="date2" onchange="this.form.submit()">
+                                </div>
+                                <div class="col-lg-5 text-end">
+                                    <a href="<?= base_url('pembelian') ?>" class="btn btn-primary btn-square">Kembali</a>
+                                </div>
+                            </div>
+                            <!-- <div class="row mt-2"> -->
+                            <!-- </div> -->
+                        </form>
+                    </div>
+                    <div class="card-body">
 
-                                                    <td>
-                                                        <button type="button" class="btn btn-primary btn-square" data-bs-toggle="modal" data-original-title="test" data-bs-target="#penerimaan_edit<?= $x->id_penerimaan ?>"><i class="fa fa-edit"></i></button>
-                                                        <button type="button" id="<?= $x->id_penerimaan ?>" class="btn btn-danger btn-square delete_penerimaan"><i class="fa fa-trash-o"></i></button>
-                                                        <button type="button" class="btn btn-warning btn-square" onclick="location.href='<?= base_url('pembelian/approve/' . $x->id_penerimaan) ?>'"><i class="fa fa-check-square-o"></i></buttpn>
+                        <?= $this->session->flashdata('message_name') ?>
+                        <div class="table-responsive" style="height: 450px;">
+                            <table class="display" id="t_barang">
+                                <thead>
+                                    <tr>
+                                        <th width="400" scope="col">No.PB</th>
+                                        <th width="80" scope="col">Tanggal</th>
+                                        <th width="80" scope="col">Nama Supplier</th>
+                                        <th width="80" scope="col">Jumlah</th>
+                                        <th width="80" scope="col">Jumlah(FC)</th>
+                                        <th width="80" scope="col">Keterangan</th>
+                                        <th width="80" scope="col">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($penerimaan as $x) { ?>
+                                        <tr>
+                                            <td>
+                                                <?= $x->no_pb ?>
+                                            </td>
+                                            <td>
+                                                <?= $x->tgl_pb ?>
+                                            </td>
+                                            <td>
+                                                <?= $x->nama_supplier ?>
+                                            </td>
+                                            <td>
+                                                <?= $x->total_barang ?>
+                                            </td>
+                                            <td>
+                                                <?= $x->total_barang ?>
+                                            </td>
+                                            <td>
+                                                <?= $x->keterangan ?>
+                                            </td>
 
-                                                    </td>
+                                            <td>
+                                                <button type="button" class="btn btn-primary btn-square" data-bs-toggle="modal" data-original-title="test" data-bs-target="#penerimaan_edit<?= $x->id_penerimaan ?>"><i class="fa fa-edit"></i></button>
+                                                <button type="button" id="<?= $x->id_penerimaan ?>" class="btn btn-danger btn-square delete_penerimaan"><i class="fa fa-trash-o"></i></button>
+                                                <button type="button" class="btn btn-warning btn-square" onclick="location.href='<?= base_url('pembelian/approve/' . $x->id_penerimaan) ?>'"><i class="fa fa-check-square-o"></i></buttpn>
 
-                                                </tr>
-                                                <div class="modal fade bd-example-modal-lg" id="penerimaan_edit<?= $x->id_penerimaan ?>" tabindex="-1" role="dialog" aria-labelledby="exampleModal" aria-hidden="true">
-                                                    <div class="modal-dialog modal-lg" role="document">
-                                                        <div class="modal-content">
-                                                            <div class="modal-header">
-                                                                <h5>Edit penerimaan</h5>
-                                                            </div>
-                                                            <div class="modal-body">
-                                                                <div class="modal-toggle-wrapper">
-                                                                    <?= $this->session->flashdata(
-                                                                        'msg'
-                                                                    ) ?>
-                                                                    <form action="<?= base_url(
-                                                                                        'pembelian'
-                                                                                    ) ?>" method="post">
-                                                                        <div class="row">
-                                                                            <!-- <div class="modal-img"> <img src="../assets/images/gif/online-shopping.gif" alt="online-shopping"></div> -->
-                                                                            <div class="col">
-                                                                                <h6>Nama penerimaan</h6>
-                                                                                <input type="hidden" value="edit" name="action">
-                                                                                <input type="hidden" value="<?= $x->id_penerimaan ?>" name="id_penerimaan">
-                                                                                <input required type="text" placeholder="Bungkus" value="<?= $x->nama_penerimaan ?>" name="penerimaan" class="form-control">
-                                                                            </div>
-                                                                        </div>
-                                                                        <div class="row mt-3">
-                                                                            <div class="col-xl-8"></div>
-                                                                            <div class="col-xl-2">
-                                                                                <button class="btn bg-primary d-flex align-items-center gap-2 text-light ms-auto" type="submit">Submit</button>
-                                                                            </div>
-                                                                            <div class="col-xl-2">
-                                                                                <button class="btn bg-secondary d-flex align-items-center gap-2 text-light ms-auto" type="button" data-bs-dismiss="modal">Close</button>
-                                                                            </div>
-                                                                        </div>
-                                                                    </form>
-                                                                    <!-- <h4>Up to <strong class="txt-danger">85% OFF</strong>, Hurry Up Online Shopping</h4> -->
-                                                                    <!-- <p class="text-sm-center">Our difficulty in finding regular clothes that was of great quality, comfortable, and didn't impact the environment given way to Creatures of Habit.</p> -->
+                                            </td>
+
+                                        </tr>
+                                        <div class="modal fade bd-example-modal-lg" id="penerimaan_edit<?= $x->id_penerimaan ?>" tabindex="-1" role="dialog" aria-labelledby="exampleModal" aria-hidden="true">
+                                            <div class="modal-dialog modal-lg" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5>Edit penerimaan</h5>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="modal-toggle-wrapper">
+                                                            <?= $this->session->flashdata(
+                                                                'msg'
+                                                            ) ?>
+                                                            <form action="<?= base_url(
+                                                                                'pembelian'
+                                                                            ) ?>" method="post">
+                                                                <div class="row">
+                                                                    <!-- <div class="modal-img"> <img src="../assets/images/gif/online-shopping.gif" alt="online-shopping"></div> -->
+                                                                    <div class="col">
+                                                                        <h6>Nama penerimaan</h6>
+                                                                        <input type="hidden" value="edit" name="action">
+                                                                        <input type="hidden" value="<?= $x->id_penerimaan ?>" name="id_penerimaan">
+                                                                        <input required type="text" placeholder="Bungkus" value="<?= $x->nama_penerimaan ?>" name="penerimaan" class="form-control">
+                                                                    </div>
                                                                 </div>
-                                                            </div>
+                                                                <div class="row mt-3">
+                                                                    <div class="col-xl-8"></div>
+                                                                    <div class="col-xl-2">
+                                                                        <button class="btn bg-primary d-flex align-items-center gap-2 text-light ms-auto" type="submit">Submit</button>
+                                                                    </div>
+                                                                    <div class="col-xl-2">
+                                                                        <button class="btn bg-secondary d-flex align-items-center gap-2 text-light ms-auto" type="button" data-bs-dismiss="modal">Close</button>
+                                                                    </div>
+                                                                </div>
+                                                            </form>
+                                                            <!-- <h4>Up to <strong class="txt-danger">85% OFF</strong>, Hurry Up Online Shopping</h4> -->
+                                                            <!-- <p class="text-sm-center">Our difficulty in finding regular clothes that was of great quality, comfortable, and didn't impact the environment given way to Creatures of Habit.</p> -->
                                                         </div>
                                                     </div>
                                                 </div>
+                                            </div>
+                                        </div>
+                                    <?php } ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <?php
+    } else if ($this->uri->segment(2) == 'approve') {
+    ?>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-body">
+                        <form action="<?= base_url('pembelian/approve') ?>" method="post">
+                            <div class="row">
+                                <!-- <div class="col-xl-6 col-sm-6 col-md-8">
+                                        <label>Gudang</label>
+                                        <input type="hidden" value="approve" name="action">
+                                        <input type="hidden" value="<?= $approve_p['id_penerimaan'] ?>" name="id_penerimaan">
+                                        <select class="form-control" name="gudang">
+                                            <option value="">Pilih Gudang</option>
+                                            <?php $gudang = $this->db->get('gudang')->result();
+                                            foreach ($gudang as $xx) {
+                                                echo "<option value='" . $xx->kode . "'>" . $xx->nama . "</option>";
+                                            } ?>
+                                        </select>
+                                    </div> -->
+
+                                <input type="hidden" value="approve" name="action">
+                                <input type="hidden" value="<?= $approve_p['id_penerimaan'] ?>" name="id_penerimaan">
+                                <div class="col-xl-6 col-sm-6 col-md-8">
+                                    <label>Supplier</label>
+                                    <input value="<?= $approve_p['nama_supplier'] ?>" name="supplier" class="form-control" readonly>
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-xl-3">
+                                    <button type="submit" class="btn btn-primary btn-square">Approve</button>
+                                    <a href="<?= base_url('pembelian/histori_pb') ?>" class="btn bg-secondary btn-square">Back</a>
+                                </div>
+                            </div>
+                            <div class="row mt-4">
+                                <div class="table-responsive">
+                                    <table class="display" id="t_barang">
+                                        <thead>
+                                            <tr>
+                                                <th width="400" scope="col">Nama Barang</th>
+                                                <th width="80" scope="col">Satuan</th>
+                                                <th width="80" scope="col">qty</th>
+                                                <th width="80" scope="col">Harga</th>
+                                                <th width="80" scope="col">dis1</th>
+                                                <th width="80" scope="col">dis2</th>
+                                                <th width="80" scope="col">harga netto</th>
+                                                <!-- <th width="80" scope="col">gudang</th> -->
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php
+                                            foreach ($penerimaan2 as $x) { ?>
+                                                <tr>
+                                                    <td>
+                                                        <?= $x->nama_barang ?>
+                                                    </td>
+                                                    <td>
+                                                        <?= $x->satuan ?>
+                                                    </td>
+                                                    <td>
+                                                        <?= $x->qty_pb ?>
+                                                    </td>
+                                                    <td>
+                                                        <?= number_format($x->harga_satuan, 0, '.', '.') ?>
+                                                    </td>
+                                                    <td>
+                                                        <?= $x->dis1 ?>
+                                                    </td>
+                                                    <td>
+                                                        <?= $x->dis2 ?>
+                                                    </td>
+                                                    <td>
+                                                        <?= number_format($x->harga_netto, 0, '.', '.') ?>
+                                                    </td>
+                                                    <!-- <td><?= $x->gudang ?></td> -->
+                                                </tr>
                                             <?php } ?>
                                         </tbody>
                                     </table>
                                 </div>
                             </div>
-                        <?php } else { ?>
-                            <div class="card-body">
-                                <form action="<?= base_url('pembelian/approve') ?>" method="post">
-                                    <div class="row">
-                                        <!-- <div class="col-xl-6 col-sm-6 col-md-8">
-                                            <label>Gudang</label>
-                                            <input type="hidden" value="approve" name="action">
-                                            <input type="hidden" value="<?= $approve_p['id_penerimaan'] ?>" name="id_penerimaan">
-                                            <select class="form-control" name="gudang">
-                                                <option value="">Pilih Gudang</option>
-                                                <?php $gudang = $this->db->get('gudang')->result();
-                                                foreach ($gudang as $xx) {
-                                                    echo "<option value='" . $xx->kode . "'>" . $xx->nama . "</option>";
-                                                } ?>
-                                            </select>
-                                        </div> -->
-
-                                        <input type="hidden" value="approve" name="action">
-                                        <input type="hidden" value="<?= $approve_p['id_penerimaan'] ?>" name="id_penerimaan">
-                                        <div class="col-xl-6 col-sm-6 col-md-8">
-                                            <label>Supplier</label>
-                                            <input value="<?= $approve_p['nama_supplier'] ?>" name="supplier" class="form-control" readonly>
-                                        </div>
-                                    </div>
-                                    <div class="row mt-2">
-                                        <div class="col-xl-3">
-                                            <button type="submit" class="btn btn-primary btn-square">Approve</button>
-                                            <a href="<?= base_url('pembelian') ?>" class="btn bg-secondary btn-square">Back</a>
-                                        </div>
-                                    </div>
-                                    <div class="row mt-4">
-                                        <div class="table-responsive">
-                                            <table class="display" id="t_barang">
-                                                <thead>
-                                                    <tr>
-                                                        <th width="400" scope="col">Nama Barang</th>
-                                                        <th width="80" scope="col">Satuan</th>
-                                                        <th width="80" scope="col">qty</th>
-                                                        <th width="80" scope="col">Harga</th>
-                                                        <th width="80" scope="col">dis1</th>
-                                                        <th width="80" scope="col">dis2</th>
-                                                        <th width="80" scope="col">harga netto</th>
-                                                        <!-- <th width="80" scope="col">gudang</th> -->
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <?php foreach ($penerimaan2 as $x) { ?>
-                                                        <tr>
-                                                            <td>
-                                                                <?= $x->nama_barang ?>
-                                                            </td>
-                                                            <td>
-                                                                <?= $x->satuan ?>
-                                                            </td>
-                                                            <td>
-                                                                <?= $x->qty_pb ?>
-                                                            </td>
-                                                            <td>
-                                                                <?= number_format($x->harga_satuan, 0, '.', '.') ?>
-                                                            </td>
-                                                            <td>
-                                                                <?= $x->dis1 ?>
-                                                            </td>
-                                                            <td>
-                                                                <?= $x->dis2 ?>
-                                                            </td>
-                                                            <td>
-                                                                <?= number_format($x->harga_netto, 0, '.', '.') ?>
-                                                            </td>
-                                                            <!-- <td>
-                                                                                                            <?= $x->gudang ?>
-                                                                                                        </td> -->
-                                                        </tr>
-                                                    <?php } ?>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        <?php } ?>
+                        </form>
                     </div>
                 </div>
             </div>
-        <?php } ?>
-    </div>
+        </div>
+    <?php
+    } else {
+    ?>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <a href="<?= base_url('pembelian/add_pb') ?>" class="btn btn-secondary">Add</a>
+                            <!-- <button class="btn btn-primary btn-sm" type="button" data-bs-toggle="modal" data-original-title="test" data-bs-target="#buatStockOpname">Buat baru</button> -->
+                            <!-- <a href="<?= base_url('inventori/pending_sop') ?>" class="btn btn-danger btn-sm">Butuh persetujuan</a> -->
+                            <a href="<?= base_url('pembelian/histori_pb') ?>" class="btn btn-primary btn-sm">Riwayat penerimaan barang</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <?php
+    }
+    ?>
 </div>
-<!-- Container-fluid Ends-->
-</div>
-<!-- footer start-->
+
 
 <script>
     $(function() {
@@ -460,14 +479,16 @@
                         success: function(data) {
                             var satuann = '';
                             if (!data.id_satuan_besar == "") {
-                                satuann += '<option value="besar" data-stok=' + data.stok + ' data-hpp-konv=' + data.hpp_konv + '  data-hpp-kecil=' + data.hpp_kecil + '  data-hpp-besar=' + data.hpp_besar + '>' + data.id_satuan_besar + '</option>';
+                                satuann += '<option value="besar" data-stok=' + data.stok + ' data-hpp-konv=' + data.hpp_konv + '  data-hpp-kecil=' + data.hpp_kecil + '  data-hpp-besar=' + data.hpp_besar + ' data-qty-konv=' + data.qty_konv + '  data-qty-kecil=' + data.qty_kecil + '  data-qty-besar=' + data.qty_besar + '>' + data.id_satuan_besar + '</option>';
+
                             }
                             if (!data.id_satuan_kecil == "") {
-                                satuann += '<option value="kecil" data-stok=' + data.stok + ' data-hpp-konv=' + data.hpp_konv + '  data-hpp-kecil=' + data.hpp_kecil + '  data-hpp-besar=' + data.hpp_besar + '>' + data.id_satuan_kecil + '</option>';
+                                satuann += '<option value="kecil" data-stok=' + data.stok + ' data-hpp-konv=' + data.hpp_konv + '  data-hpp-kecil=' + data.hpp_kecil + '  data-hpp-besar=' + data.hpp_besar + ' data-qty-konv=' + data.qty_konv + '  data-qty-kecil=' + data.qty_kecil + '  data-qty-besar=' + data.qty_besar + '>' + data.id_satuan_kecil + '</option>';
                             }
                             if (!data.id_satuan_kecil_konv == "") {
-                                satuann += '<option value="konv" data-stok=' + data.stok + ' data-hpp-konv=' + data.hpp_konv + '  data-hpp-kecil=' + data.hpp_kecil + '  data-hpp-besar=' + data.hpp_besar + '>' + data.id_satuan_kecil_konv + '</option>';
+                                satuann += '<option value="konv" data-stok=' + data.stok + ' data-hpp-konv=' + data.hpp_konv + '  data-hpp-kecil=' + data.hpp_kecil + '  data-hpp-besar=' + data.hpp_besar + ' data-qty-konv=' + data.qty_konv + '  data-qty-kecil=' + data.qty_kecil + '  data-qty-besar=' + data.qty_besar + '>' + data.id_satuan_kecil_konv + '</option>';
                             }
+
                             $('.harga' + counter + '').val(data.hpp_besar.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1."));
                             $('.satuan' + counter + '').html(satuann);
                             updateHarga(counter); // Menambah pemanggilan fungsi untuk meng-update harga
@@ -532,6 +553,9 @@
                             '<select id="ids' + counter + '" class="form-control satuan-select satuan' + counter + '" onchange="updateHarga(' + counter + ')" style="cursor: text;">' +
                             '<option value="">Pilih satuan</option>' +
                             '</select>' +
+                            '<td>' +
+                            '<input type="text" class="form-control stok_awal' + counter + '">' +
+                            '</td>' +
                             '</td>' +
                             '<td>' +
                             '<input id="idq' + counter + '" type="text" name="qty[]" style="text-align:center;" class="form-control qty' + counter + '">' +
@@ -722,19 +746,36 @@
         var hppKonv = row.find('.satuan' + counter).find(':selected').data('hpp-konv');
         var hppKecil = row.find('.satuan' + counter).find(':selected').data('hpp-kecil');
         var hppBesar = row.find('.satuan' + counter).find(':selected').data('hpp-besar');
+        var qtyKonv = row.find('.satuan' + counter).find(':selected').data('qty-konv');
+        var qtyKecil = row.find('.satuan' + counter).find(':selected').data('qty-kecil');
+        var qtyBesar = row.find('.satuan' + counter).find(':selected').data('qty-besar');
+        var stok = row.find('.satuan' + counter).find(':selected').data('stok');
 
         var harga;
 
         if (selectedOption == "konv") {
+            jumlah = stok; //OK
             harga = hppKonv; //OK
-        } else if (selectedOption == "kecil") {
+        } else if (selectedOption == "kecil" && qtyKonv) {
+            jumlah = Math.floor(stok / qtyKonv); // OK
             harga = hppKecil; // OK
-        } else if (selectedOption == "besar") {
+        } else if (selectedOption == "kecil" && !qtyKonv) {
+            jumlah = stok;
+            harga = hppKecil; // OK
+        } else if (selectedOption == "besar" && qtyKecil && qtyKonv) {
+            jumlah = Math.floor(stok / qtyKecil / qtyKonv); // OK
+            harga = hppBesar; // OK
+        } else if (selectedOption == "besar" && qtyKecil && !qtyKonv) {
+            jumlah = Math.floor(stok / qtyKecil);
+            harga = hppBesar; // OK
+        } else if (selectedOption == "besar" && !qtyKecil && !qtyKonv) {
+            jumlah = Math.floor(stok / qtyBesar);
             harga = hppBesar; // OK
         }
 
         row.find('[name="harga[]"]').val(harga.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1."));
         row.find('[name="netto[]"]').val(harga.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1."));
+        row.find('.stok_awal' + counter).val(jumlah);
         row.find('.qty' + counter).on('input', function() {
             hitung(this, counter);
         });
@@ -765,5 +806,20 @@
             updateTotalPB(counter);
         }
         console.log(qty, harga)
+    }
+
+    function metode_bayar() {
+        var metodeBayarSelect = document.querySelector('.c_bayar');
+        var tempoInput = document.querySelector('.tempo');
+
+        if (metodeBayarSelect.value === 'Kredit') {
+            // Jika opsi "Kredit" dipilih, buat input tempo tidak readonly dan kosongkan nilainya
+            tempoInput.readOnly = false;
+            tempoInput.value = '';
+        } else {
+            // Jika opsi selain "Kredit" dipilih, buat input tempo menjadi readonly dan beri nilai 0
+            tempoInput.readOnly = true;
+            tempoInput.value = '0';
+        }
     }
 </script>

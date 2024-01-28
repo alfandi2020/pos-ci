@@ -55,6 +55,7 @@
                                         <th>Asal</th>
                                         <th>No. Transaksi</th>
                                         <th>Customer</th>
+                                        <th>Stok awal</th>
                                         <th>Satuan</th>
                                         <th>Qty</th>
                                         <th>Tanggal</th>
@@ -66,12 +67,12 @@
                                     $no = 1;
                                     foreach ($lists as $l) :
 
-                                        if ($l->source == "Penerimaan") {
+                                        if ($l->source == "Transaksi") {
+                                            $satuan_nama = $l->satuan_nama;
+                                        } else {
                                             $satuan = $this->db->select('id_satuan_' . $l->satuan_nama . ' as satuan_baru')->where('id', $l->id_barang)->get('barang')->row_array();
 
                                             $satuan_nama = $satuan['satuan_baru'];
-                                        } else {
-                                            $satuan_nama = $l->satuan_nama;
                                         }
 
                                     ?>
@@ -80,6 +81,7 @@
                                             <td><?= strtoupper($l->source) ?></td>
                                             <td><?= $l->nomor ?></td>
                                             <td><?= $l->customer ?></td>
+                                            <td><?= $l->stok_awal ?></td>
                                             <td><?= $satuan_nama ?></td>
                                             <td><?= $l->qty ?></td>
                                             <td><?= format_indo2($l->date_created) ?></td>

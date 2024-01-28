@@ -146,12 +146,30 @@
                             <div class="mb-3">
                                 <label for="article_category" class="form-label">Barang</label>
                                 <select name="item_barang" id="item_barang" class="form-select input-air-primary digits select2">
-                                    <option value="">--Pilih</option>>
+                                    <option value="">--Pilih</option>
                                     <?php
 
                                     foreach ($barang as $b) {
                                     ?>
                                         <option <?= ($this->input->post('item_barang') == $b->id) ? "selected" : '' ?> value="<?= $b->id ?>"><?= $b->nama ?></option>
+                                    <?php
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label for="article_category" class="form-label">Gudang</label>
+                                <select name="gudang" id="gudang" class="form-select input-air-primary digits select2">
+                                    <option value="">--Pilih</option>
+                                    <?php
+
+                                    foreach ($gudang as $b) {
+                                    ?>
+                                        <option <?= ($this->input->post('gudang') == $b->id) ? "selected" : '' ?> value="<?= $b->id ?>"><?= $b->nama ?></option>
                                     <?php
                                     }
                                     ?>

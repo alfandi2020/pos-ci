@@ -22,6 +22,53 @@
             }
         }
 
+        function histori_pb()
+        {
+            $brand = $this->input->post('brand');
+            $action = $this->input->post('action');
+            $id = $this->input->post('id_brand');
+            if ($brand == true) {
+                $cek = $this->db->query("SELECT * FROM brand where nama_brand='$brand'")->num_rows();
+                if ($cek == true) {
+                    $this->session->set_flashdata('msg', 'double_satuan');
+                    $this->session->set_flashdata('msg_val', $brand);
+                    redirect('barang/penerimaan');
+                } else {
+                    $datax = [
+                        'nama_brand' => $brand,
+                    ];
+                    $this->db->insert('penerimaan', $datax);
+                    redirect('barang/brand');
+                }
+            }
+            if ($action == 'edit') {
+                $datax = [
+                    'penerimaan' => $brand,
+                ];
+                $this->db->where('id', $id);
+                $this->db->update('penerimaan', $datax);
+                redirect('barang/penerimaan');
+            }
+            $this->db->select('*,count(*) as total_barang');
+            $this->db->from('penerimaan as a');
+            $this->db->join('penerimaan_list as b', 'a.id_penerimaan=b.id_pb');
+            $this->db->join('supplier as c', 'a.supplier=c.kode_supplier');
+            $first_date = $this->session->userdata('date_pembelian') == null ? date('Y-m-d') : $this->session->userdata('date_pembelian');
+            $second_date = $this->session->userdata('date_pembelian2') == null ? date('Y-m-d') : $this->session->userdata('date_pembelian2');
+            $this->db->where('a.tgl_pb >=', $first_date);
+            $this->db->where('a.tgl_pb <=', $second_date);
+            $this->db->where('approve', '0');
+            $this->db->group_by('b.id_pb');
+            $penerimaan = $this->db->get()->result();
+            $data = [
+                'penerimaan' => $penerimaan,
+            ];
+            // $this->session->set_flashdata('msg','Data tidak boleh kosong');
+            // redirect('barang/satuan');
+            $this->load->view('body/header');
+            $this->load->view('barang/penerimaan', $data);
+            $this->load->view('body/footer');
+        }
         function index()
         {
             $brand = $this->input->post('brand');
@@ -203,6 +250,7 @@
                     'id_barang' => $x['id_barang'],
                     'nama_barang' => $x['nama_barang'],
                     'satuan' => $x['satuan'],
+                    'st' => $x['st'],
                     'qty_pb' => $x['qty'],
                     'harga_satuan' => $this->clean($x['harga_satuan']),
                     'harga_netto' => $this->clean($x['netto']),
@@ -254,6 +302,6 @@
             $date2 = $this->input->post('date2');
             $this->session->set_userdata('date_pembelian', $date);
             $this->session->set_userdata('date_pembelian2', $date2);
-            redirect('pembelian');
+            redirect('pembelian/histori_pb');
         }
     }
