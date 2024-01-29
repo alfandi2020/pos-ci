@@ -161,7 +161,7 @@ class Penjualan extends CI_Controller {
         left join customers as c on(a.pelanggan=c.id_customer)
         left join users d on (a.kasir=d.id)
         left join barang as e on(b.kd_barang=e.id)
-        left join kategori as f on(e.kategori_id=f.id) WHERE a.tahan=0 and DATE(a.tgl_transaksi) BETWEEN '".$first_date."' and '".$second_date."' GROUP BY a.no_struk ")->result();
+        left join kategori as f on(e.kategori_id=f.id) WHERE a.tahan=0 and DATE(a.tgl_transaksi) BETWEEN '".$first_date."' and '".$second_date."'")->result();
 
         $no = 1; // Untuk penomoran tabel, di awal set dengan 1
         $numrow = 2; // Set baris pertama untuk isi tabel adalah baris ke 4
