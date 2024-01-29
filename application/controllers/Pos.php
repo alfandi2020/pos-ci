@@ -105,7 +105,8 @@ class Pos extends CI_Controller
             foreach ($result->result() as $row)
                 $arr_result[] = array(
                     'label'         => $row->nama,
-                    'description'   => $row->id
+                    'description'   => $row->id,
+                    'kode_barang'   => $row->kode_barang
                 );
             echo json_encode($arr_result);
         }

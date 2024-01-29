@@ -141,6 +141,9 @@
                 // ambil item dari tabel penerimaan_list
                 $tampil = $this->db->where('id_pb', $id)->get('penerimaan_list')->result();
 
+                // print_r($tampil);
+                // exit;
+
                 foreach ($tampil as $t) {
                     $satuan = $t->satuan;
                     $qty_pb = $t->qty_pb;
@@ -165,14 +168,16 @@
                     // print_r($barang);
                     // var_dump($satuan, $barang['qty_kecil'], $barang['qty_konv'], $qty_pb, $stok_tambah, $barang['stok'], $stok_baru);
                     // echo '</pre>';
+                    // var_dump($barang['kode_barang'], $t->gudang);
 
                     $data_update = [
                         'stok' => $stok_baru,
                         'tgl_last_update' => date('Y-m-d H:i:s')
                     ];
 
-                    $this->db->where('id', $t->id_barang)->update('barang', $data_update);
+                    $this->db->where('kode_barang', $barang['kode_barang'])->where('id_gudang', $t->gudang)->update('barang', $data_update);
                 }
+                // exit;
 
                 $datax = [
                     'approve' => '1',
@@ -208,6 +213,18 @@
             $this->load->view('body/footer');
         }
 
+        function search_barang()
+        {
+            $kode_barang = $this->input->post('kode_barang');
+            $id_gudang = $this->input->post('id_gudang');
+
+            $this->db->where('kode_barang', $kode_barang);
+            $this->db->where('id_gudang', $id_gudang);
+            $this->db->from('barang');
+            $data = $this->db->get();
+
+            echo json_encode($data->row_array());
+        }
         function submit_pb()
         {
             $no_pb = $this->input->post('no_pb');
@@ -222,6 +239,9 @@
             $tgl_fp = $this->input->post('tgl_fp');
             $keterangan = $this->input->post('keterangan');
             $total_penerimaan = $this->input->post('total_penerimaan');
+
+            // echo json_encode($this->input->post('item'));
+            // exit;
 
             $pb = [
                 'no_pb' => $no_pb,
@@ -240,17 +260,14 @@
             ];
             $this->db->insert('penerimaan', $pb);
             $pb_get = $this->db
-                ->query(
-                    'SELECT MAX(id_penerimaan) as id_penerimaan from penerimaan'
-                )
-                ->row_array();
+                ->query('SELECT MAX(id_penerimaan) as id_penerimaan from penerimaan')->row_array();
             foreach ($this->input->post('item') as $x) {
                 $output[] = [
                     'id_pb' => $pb_get['id_penerimaan'],
                     'id_barang' => $x['id_barang'],
                     'nama_barang' => $x['nama_barang'],
                     'satuan' => $x['satuan'],
-                    'st' => $x['st'],
+                    'stok_awal' => $x['stok_awal'],
                     'qty_pb' => $x['qty'],
                     'harga_satuan' => $this->clean($x['harga_satuan']),
                     'harga_netto' => $this->clean($x['netto']),
@@ -258,7 +275,15 @@
                 ];
             }
             $this->db->insert_batch('penerimaan_list', $output); //submit
+            // if ($this->db->error()) {
+            //     // Log the database error
+            //     // $abc = ;
+
+            //     echo json_encode(log_message('error', 'Database Error: ' . $this->db->error()));
+            // } else {
+
             echo json_encode('berhasil');
+            // }
         }
         function clean($string)
         {
