@@ -1314,7 +1314,11 @@ class Inventori extends CI_Controller
             $this->db->join('users u', 'p.user_input = u.id', 'left'); // JOIN dengan tabel satuan
             $this->db->join('supplier sup', 'p.supplier = sup.kode_supplier', 'left'); // JOIN dengan tabel satuan
             $this->db->where('pl.id_barang', $id_barang);
-            $this->db->where('pl.gudang', $id_gudang);
+
+            if ($id_gudang == "7") {
+                $this->db->where('pl.gudang', $id_gudang);
+            }
+
             $this->db->where('pl.date_created >=', $start_date);
             $this->db->where('pl.date_created <=', $end_date);
 
