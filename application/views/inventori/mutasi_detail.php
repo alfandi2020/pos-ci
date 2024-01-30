@@ -93,15 +93,35 @@
                                     $satuan = $l->satuan;
                                     $jumlah = $l->jumlah;
 
+                                    // if ($satuan == "konv") {
+                                    //     $ket_satuan = $barang_detail['id_satuan_kecil_konv'];
+                                    //     $stok = $jumlah * $barang_detail['qty_konv'];
+                                    // } else if ($satuan == "kecil") {
+                                    //     $ket_satuan = $barang_detail['id_satuan_kecil'];
+                                    //     $stok = $jumlah * $barang_detail['qty_kecil'];
+                                    // } else if ($satuan == "besar") {
+                                    //     $ket_satuan = $barang_detail['id_satuan_besar'];
+                                    //     $stok = $jumlah * $barang_detail['qty_besar'];
+                                    // }
+
                                     if ($satuan == "konv") {
+                                        $stok = $jumlah;
                                         $ket_satuan = $barang_detail['id_satuan_kecil_konv'];
-                                        $stok = $jumlah * $barang_detail['qty_konv'];
-                                    } else if ($satuan == "kecil") {
-                                        $ket_satuan = $barang_detail['id_satuan_kecil'];
+                                    } else if ($satuan == "kecil" && $barang_detail['qty_konv']) {
                                         $stok = $jumlah * $barang_detail['qty_kecil'];
-                                    } else if ($satuan == "besar") {
+                                        $ket_satuan = $barang_detail['id_satuan_kecil'];
+                                    } else if ($satuan == "kecil" && !$barang_detail['qty_konv']) {
+                                        $stok = $jumlah;
+                                        $ket_satuan = $barang_detail['id_satuan_kecil'];
+                                    } else if ($satuan == "besar" && $barang_detail['qty_kecil'] && $barang_detail['qty_konv']) {
+                                        $stok = $jumlah * $barang_detail['qty_kecil'] * $qty_besar;
                                         $ket_satuan = $barang_detail['id_satuan_besar'];
-                                        $stok = $jumlah * $barang_detail['qty_besar'];
+                                    } else if ($satuan == "besar" && $barang_detail['qty_kecil'] && !$barang_detail['qty_konv']) {
+                                        $stok = $jumlah * $barang_detail['qty_kecil'];
+                                        $ket_satuan = $barang_detail['id_satuan_besar'];
+                                    } else if ($satuan == "besar" && !$barang_detail['qty_kecil'] && !$barang_detail['qty_konv']) {
+                                        $stok = $jumlah;
+                                        $ket_satuan = $barang_detail['id_satuan_besar'];
                                     }
 
                                     if ($status == 0) {

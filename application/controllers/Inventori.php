@@ -1113,6 +1113,21 @@ class Inventori extends CI_Controller
         redirect("inventori/detail_sop/$no_stock_opname");
     }
 
+    public function delete_detail_mutasi()
+    {
+        $no_mutasi = $this->uri->segment(3);
+        $id = $this->uri->segment(4);
+
+        $this->db->where('id', $id);
+        $this->db->delete('mutasi_details');
+        $this->session->set_flashdata('message_name', '<div class="alert alert-success alert-dismissible fade show" role="alert">
+            Data mutasi berhasil dihapus.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>');
+        // After that you need to used redirect function instead of load view such as 
+        redirect("inventori/detail_mutasi/$no_mutasi");
+    }
+
     public function delete_detail_koreksi()
     {
         $no_koreksi = $this->uri->segment(3);
