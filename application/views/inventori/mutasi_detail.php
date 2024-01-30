@@ -93,17 +93,6 @@
                                     $satuan = $l->satuan;
                                     $jumlah = $l->jumlah;
 
-                                    // if ($satuan == "konv") {
-                                    //     $ket_satuan = $barang_detail['id_satuan_kecil_konv'];
-                                    //     $stok = $jumlah * $barang_detail['qty_konv'];
-                                    // } else if ($satuan == "kecil") {
-                                    //     $ket_satuan = $barang_detail['id_satuan_kecil'];
-                                    //     $stok = $jumlah * $barang_detail['qty_kecil'];
-                                    // } else if ($satuan == "besar") {
-                                    //     $ket_satuan = $barang_detail['id_satuan_besar'];
-                                    //     $stok = $jumlah * $barang_detail['qty_besar'];
-                                    // }
-
                                     if ($satuan == "konv") {
                                         $stok = $jumlah;
                                         $ket_satuan = $barang_detail['id_satuan_kecil_konv'];

@@ -221,13 +221,15 @@
                             <table class="display" id="t_barang">
                                 <thead>
                                     <tr>
-                                        <th width="400" scope="col">No.PB</th>
-                                        <th width="80" scope="col">Tanggal</th>
-                                        <th width="80" scope="col">Nama Supplier</th>
-                                        <th width="80" scope="col">Jumlah</th>
-                                        <th width="80" scope="col">Jumlah(FC)</th>
-                                        <th width="80" scope="col">Keterangan</th>
-                                        <th width="80" scope="col">Action</th>
+                                        <th width="" scope="col">No.PB</th>
+                                        <th width="" scope="col">Tanggal</th>
+                                        <th width="" scope="col">No. Surat jalan</th>
+                                        <th width="" scope="col">Nama Supplier</th>
+                                        <th width="" scope="col">Jumlah</th>
+                                        <th width="" scope="col">Jumlah(FC)</th>
+                                        <th width="" scope="col">Total penerimaan</th>
+                                        <th width="" scope="col">Keterangan</th>
+                                        <th width="" scope="col">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -240,6 +242,9 @@
                                                 <?= $x->tgl_pb ?>
                                             </td>
                                             <td>
+                                                <?= $x->no_srt_jln ?>
+                                            </td>
+                                            <td>
                                                 <?= $x->nama_supplier ?>
                                             </td>
                                             <td>
@@ -248,10 +253,12 @@
                                             <td>
                                                 <?= $x->total_barang ?>
                                             </td>
+                                            <td class="text-end">
+                                                Rp<?= number_format($x->total_penerimaan) ?>
+                                            </td>
                                             <td>
                                                 <?= $x->keterangan ?>
                                             </td>
-
                                             <td>
                                                 <button type="button" class="btn btn-primary btn-square" data-bs-toggle="modal" data-original-title="test" data-bs-target="#penerimaan_edit<?= $x->id_penerimaan ?>"><i class="fa fa-edit"></i></button>
                                                 <button type="button" id="<?= $x->id_penerimaan ?>" class="btn btn-danger btn-square delete_penerimaan"><i class="fa fa-trash-o"></i></button>
@@ -333,6 +340,10 @@
                                 <div class="col-xl-6 col-sm-6 col-md-8">
                                     <label>Supplier</label>
                                     <input value="<?= $approve_p['nama_supplier'] ?>" name="supplier" class="form-control" readonly>
+                                </div>
+                                <div class="col-xl-6 col-sm-6 text-end">
+                                    <label for="">Total penerimaan</label>
+                                    <h4>Rp<?= number_format($approve_p['total_penerimaan']) ?></h4>
                                 </div>
                             </div>
                             <div class="row mt-2">
@@ -748,6 +759,16 @@
         };
 
         var supplierVal = $('.supplier').val();
+        var suratJalanVal = $('.srt_jln').val();
+
+        if (suratJalanVal === "") {
+            swal({
+                title: "Peringatan",
+                text: "Surat jalan harus diisi",
+                icon: "warning",
+            });
+            return; // Menghentikan proses submit jika supplier belum dipilih
+        }
 
         if (supplierVal === "") {
             swal({

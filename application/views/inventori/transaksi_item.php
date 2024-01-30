@@ -60,6 +60,7 @@
                                         <th>Qty</th>
                                         <th>Tanggal</th>
                                         <th>User</th>
+                                        <th>Disetujui oleh</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -67,6 +68,7 @@
                                     $no = 1;
                                     foreach ($lists as $l) :
 
+                                        $satuann = $l->satuan_nama;
                                         if ($l->source == "Transaksi") {
                                             $satuan_nama = $l->satuan_nama;
                                         } else {
@@ -74,6 +76,27 @@
 
                                             $satuan_nama = $satuan['satuan_baru'];
                                         }
+
+                                        // if ($satuann == "konv") {
+                                        //     $stok = $jumlah;
+                                        //     $ket_satuan = $barang_detail['id_satuan_kecil_konv'];
+                                        // } else if ($satuann == "kecil" && $barang_detail['qty_konv']) {
+                                        //     $stok = $jumlah * $barang_detail['qty_kecil'];
+                                        //     $ket_satuan = $barang_detail['id_satuan_kecil'];
+                                        // } else if ($satuann == "kecil" && !$barang_detail['qty_konv']) {
+                                        //     $stok = $jumlah;
+                                        //     $ket_satuan = $barang_detail['id_satuan_kecil'];
+                                        // } else if ($satuann == "besar" && $barang_detail['qty_kecil'] && $barang_detail['qty_konv']) {
+                                        //     $stok = $jumlah * $barang_detail['qty_kecil'] * $qty_besar;
+                                        //     $ket_satuan = $barang_detail['id_satuan_besar'];
+                                        // } else if ($satuann == "besar" && $barang_detail['qty_kecil'] && !$barang_detail['qty_konv']) {
+                                        //     $stok = $jumlah * $barang_detail['qty_kecil'];
+                                        //     $ket_satuan = $barang_detail['id_satuan_besar'];
+                                        // } else if ($satuann == "besar" && !$barang_detail['qty_kecil'] && !$barang_detail['qty_konv']) {
+                                        //     $stok = $jumlah;
+                                        //     $ket_satuan = $barang_detail['id_satuan_besar'];
+                                        // }
+
 
                                     ?>
                                         <tr>
@@ -86,6 +109,7 @@
                                             <td><?= $l->qty ?></td>
                                             <td><?= format_indo2($l->date_created) ?></td>
                                             <td><?= $l->kasir ?></td>
+                                            <td><?= $l->approved_by ?></td>
                                         </tr>
                                     <?php
                                     endforeach;

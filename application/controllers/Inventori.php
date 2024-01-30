@@ -202,6 +202,9 @@ class Inventori extends CI_Controller
             $this->db->where('id', $s->id_barang)->update('barang', $data_stok);
             $this->db->where('Id', $s->Id)->update('stock_opname_details', $data_sop_detail);
         }
+
+        $data_sop = ['approve' => '1', 'approve_by' => $this->session->userdata('id_user')];
+        $this->db->where('id', $id)->update('stock_opname', $data_sop);
         // exit;
 
         $this->session->set_flashdata('message_name', '<div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -490,6 +493,9 @@ class Inventori extends CI_Controller
 
             $this->db->where('Id', $k->Id)->update('mutasi_details', $data_mutasi_detail);
         }
+
+        $data_sop = ['approve' => '1', 'approve_by' => $this->session->userdata('id_user')];
+        $this->db->where('id', $id)->update('mutasi', $data_sop);
         // exit;
 
         $this->session->set_flashdata('message_name', '<div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -1280,6 +1286,9 @@ class Inventori extends CI_Controller
             $this->db->where('id', $k->id_barang)->update('barang', $data_stok);
             $this->db->where('Id', $k->Id)->update('koreksi_details', $data_koreksi_detail);
         }
+
+        $data_sop = ['approve' => '1', 'approve_by' => $this->session->userdata('id_user')];
+        $this->db->where('id', $id)->update('koreksi', $data_sop);
         // exit;
 
         $this->session->set_flashdata('message_name', '<div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -1323,12 +1332,15 @@ class Inventori extends CI_Controller
         if (!$id_gudang or $id_gudang == "7") {
 
             // query penerimaan
-            $this->db->select('pl.id_barang, pl.nama_barang, pl.satuan, pl.qty_pb as qty, pl.date_created, "Penerimaan" as source, satuan as satuan_nama, no_pb as nomor, nama as kasir, nama_supplier as customer, stok_awal as stok_awal');
+            $this->db->select('pl.id_barang, pl.nama_barang, pl.satuan, pl.qty_pb as qty, pl.date_created, "Penerimaan" as source, satuan as satuan_nama, no_pb as nomor, u_kasir.nama AS kasir, u_approved.nama AS approved_by, nama_supplier as customer, stok_awal as stok_awal');
             $this->db->from('penerimaan_list pl');
-            $this->db->join('penerimaan p', 'pl.id_pb = p.id_penerimaan', 'left'); // JOIN dengan tabel satuan
-            $this->db->join('users u', 'p.user_input = u.id', 'left'); // JOIN dengan tabel satuan
-            $this->db->join('supplier sup', 'p.supplier = sup.kode_supplier', 'left'); // JOIN dengan tabel satuan
+            $this->db->join('penerimaan p', 'pl.id_pb = p.id_penerimaan', 'left');
+            $this->db->join('users u_kasir', 'p.user_input = u_kasir.id', 'left'); // Alias u_kasir for kasir
+            $this->db->join('users u_approved', 'p.approve_by = u_approved.id', 'left'); // Alias u_approved for approved_by
+            $this->db->join('supplier sup', 'p.supplier = sup.kode_supplier', 'left');
             $this->db->where('pl.id_barang', $id_barang);
+            $this->db->where('approve', '1');
+
 
             if ($id_gudang == "7") {
                 $this->db->where('pl.gudang', $id_gudang);
@@ -1340,7 +1352,7 @@ class Inventori extends CI_Controller
             $query1 = $this->db->get_compiled_select();
 
             // query transaksi
-            $this->db->select('ti.kd_barang, ti.barang as nama_barang, ti.satuan, (qty * qty_satuan) as qty, ti.date_created, "Transaksi" as source, ti.satuan as satuan_nama, no_struk as nomor, nama as kasir, nama_toko as customer, "-" as stok_awal');
+            $this->db->select('ti.kd_barang, ti.barang as nama_barang, ti.satuan, qty as qty, ti.date_created, "Transaksi" as source, ti.satuan as satuan_nama, no_struk as nomor, nama as kasir, "-" as approved_by, nama_toko as customer, "-" as stok_awal');
             $this->db->from('transaksi_item ti');
             $this->db->join('transaksi t', 'ti.id_transaksi = t.id', 'left'); // JOIN dengan tabel satuan
             $this->db->join('users u', 't.kasir = u.id', 'left'); // JOIN dengan tabel satuan
@@ -1352,34 +1364,39 @@ class Inventori extends CI_Controller
             $query2 = $this->db->get_compiled_select();
 
             // query stock opname
-            $this->db->select('sop_d.id_barang, b.nama as nama_barang, sop_d.satuan, qty_fisik as qty, sop_d.created_at as date_created, "Stock opname" as source, sop_d.satuan as satuan_nama, no_stock_opname as nomor, u.nama as kasir, "-" as customer, qty_sistem as stok_awal');
+            $this->db->select('sop_d.id_barang, b.nama as nama_barang, sop_d.satuan, qty_fisik as qty, sop_d.created_at as date_created, "Stock opname" as source, sop_d.satuan as satuan_nama, no_stock_opname as nomor, u_kasir.nama AS kasir, u_approved.nama AS approved_by, "-" as customer, qty_sistem as stok_awal');
             $this->db->from('stock_opname_details sop_d');
             $this->db->join('stock_opname s', 'sop_d.id_stock_opname = s.id', 'left'); // JOIN dengan tabel satuan
-            $this->db->join('users u', 's.created_by = u.id', 'left'); // JOIN dengan tabel satuan
+            $this->db->join('users u_kasir', 's.created_by = u_kasir.id', 'left'); // Alias u_kasir for kasir
+            $this->db->join('users u_approved', 's.approve_by = u_approved.id', 'left'); // Alias u_approved for 
             $this->db->join('barang b', 'sop_d.id_barang = b.id', 'left'); // JOIN dengan tabel satuan
             $this->db->where('sop_d.id_barang', $id_barang);
             $this->db->where('sop_d.created_at >=', $start_date);
             $this->db->where('sop_d.created_at <=', $end_date);
+            $this->db->where('approve', '1');
 
             $query3 = $this->db->get_compiled_select();
 
             // query koreksi
-            $this->db->select('kor_d.id_barang, b.nama as nama_barang, kor_d.satuan, jumlah_koreksi as qty, kor_d.created_at as date_created, "Koreksi" as source, kor_d.satuan as satuan_nama, no_koreksi as nomor, u.nama as kasir, "-" as customer, stok_awal');
+            $this->db->select('kor_d.id_barang, b.nama as nama_barang, kor_d.satuan, jumlah_koreksi as qty, kor_d.created_at as date_created, "Koreksi" as source, kor_d.satuan as satuan_nama, no_koreksi as nomor, u_kasir.nama AS kasir, u_approved.nama AS approved_by, "-" as customer, stok_awal');
             $this->db->from('koreksi_details kor_d');
             $this->db->join('koreksi s', 'kor_d.id_koreksi = s.id', 'left'); // JOIN dengan tabel satuan
-            $this->db->join('users u', 's.created_by = u.id', 'left'); // JOIN dengan tabel satuan
+            $this->db->join('users u_kasir', 's.created_by = u_kasir.id', 'left'); // Alias u_kasir for kasir
+            $this->db->join('users u_approved', 's.approve_by = u_approved.id', 'left'); // Alias u_approved for 
             $this->db->join('barang b', 'kor_d.id_barang = b.id', 'left'); // JOIN dengan tabel satuan
             $this->db->where('kor_d.id_barang', $id_barang);
             $this->db->where('kor_d.created_at >=', $start_date);
             $this->db->where('kor_d.created_at <=', $end_date);
+            $this->db->where('approve', '1');
 
             $query4 = $this->db->get_compiled_select();
 
             // query mutasi
-            $this->db->select('mut_d.id_barang, b.nama as nama_barang, mut_d.satuan, jumlah as qty, mut_d.created_at as date_created, "Mutasi" as source, mut_d.satuan as satuan_nama, no_mutasi as nomor, u.nama as kasir, "-" as customer, mut_d.stok as stok_awal');
+            $this->db->select('mut_d.id_barang, b.nama as nama_barang, mut_d.satuan, jumlah as qty, mut_d.created_at as date_created, "Mutasi" as source, mut_d.satuan as satuan_nama, no_mutasi as nomor, u_kasir.nama AS kasir, u_approved.nama AS approved_by, "-" as customer, mut_d.stok as stok_awal');
             $this->db->from('mutasi_details mut_d');
             $this->db->join('mutasi s', 'mut_d.id_mutasi = s.id', 'left'); // JOIN dengan tabel satuan
-            $this->db->join('users u', 's.created_by = u.id', 'left'); // JOIN dengan tabel satuan
+            $this->db->join('users u_kasir', 's.created_by = u_kasir.id', 'left'); // Alias u_kasir for kasir
+            $this->db->join('users u_approved', 's.approve_by = u_approved.id', 'left'); // Alias u_approved for 
             $this->db->join('barang b', 'mut_d.id_barang = b.id', 'left'); // JOIN dengan tabel satuan
             $this->db->where('mut_d.id_barang', $id_barang);
             if ($id_gudang == "7") {
@@ -1387,6 +1404,7 @@ class Inventori extends CI_Controller
             }
             $this->db->where('mut_d.created_at >=', $start_date);
             $this->db->where('mut_d.created_at <=', $end_date);
+            $this->db->where('approve', '1');
 
             $query5 = $this->db->get_compiled_select();
 
@@ -1396,28 +1414,32 @@ class Inventori extends CI_Controller
         } else {
 
             // query penerimaan
-            $this->db->select('pl.id_barang, pl.nama_barang, pl.satuan, pl.qty_pb as qty, pl.date_created, "Penerimaan" as source, satuan as satuan_nama, no_pb as nomor, nama as kasir, nama_supplier as customer, stok_awal as stok_awal');
+            $this->db->select('pl.id_barang, pl.nama_barang, pl.satuan, pl.qty_pb as qty, pl.date_created, "Penerimaan" as source, satuan as satuan_nama, no_pb as nomor,  u_kasir.nama AS kasir, u_approved.nama AS approved_by, nama_supplier as customer, stok_awal as stok_awal');
             $this->db->from('penerimaan_list pl');
             $this->db->join('penerimaan p', 'pl.id_pb = p.id_penerimaan', 'left'); // JOIN dengan tabel satuan
-            $this->db->join('users u', 'p.user_input = u.id', 'left'); // JOIN dengan tabel satuan
+            $this->db->join('users u_kasir', 'p.user_input = u_kasir.id', 'left'); // Alias u_kasir for kasir
+            $this->db->join('users u_approved', 'p.approve_by = u_approved.id', 'left'); // Alias u_approved for 
             $this->db->join('supplier sup', 'p.supplier = sup.kode_supplier', 'left'); // JOIN dengan tabel satuan
             $this->db->where('pl.id_barang', $id_barang);
             $this->db->where('pl.gudang', $id_gudang);
             $this->db->where('pl.date_created >=', $start_date);
             $this->db->where('pl.date_created <=', $end_date);
+            $this->db->where('approve', '1');
 
             $query1 = $this->db->get_compiled_select();
 
             // query mutasi
-            $this->db->select('mut_d.id_barang, b.nama as nama_barang, mut_d.satuan, jumlah as qty, mut_d.created_at as date_created, "Mutasi" as source, mut_d.satuan as satuan_nama, no_mutasi as nomor, u.nama as kasir, "-" as customer, mut_d.stok as stok_awal');
+            $this->db->select('mut_d.id_barang, b.nama as nama_barang, mut_d.satuan, jumlah as qty, mut_d.created_at as date_created, "Mutasi" as source, mut_d.satuan as satuan_nama, no_mutasi as nomor, u_kasir.nama AS kasir, u_approved.nama AS approved_by, "-" as customer, mut_d.stok as stok_awal');
             $this->db->from('mutasi_details mut_d');
             $this->db->join('mutasi s', 'mut_d.id_mutasi = s.id', 'left'); // JOIN dengan tabel satuan
-            $this->db->join('users u', 's.created_by = u.id', 'left'); // JOIN dengan tabel satuan
+            $this->db->join('users u_kasir', 's.created_by = u_kasir.id', 'left'); // Alias u_kasir for kasir
+            $this->db->join('users u_approved', 's.approve_by = u_approved.id', 'left'); // Alias u_approved for 
             $this->db->join('barang b', 'mut_d.id_barang = b.id', 'left'); // JOIN dengan tabel satuan
             $this->db->where('mut_d.id_barang', $id_barang);
             $this->db->where('s.id_gudang_tujuan', $id_gudang);
             $this->db->where('mut_d.created_at >=', $start_date);
             $this->db->where('mut_d.created_at <=', $end_date);
+            $this->db->where('approve', '1');
 
             $query5 = $this->db->get_compiled_select();
 
