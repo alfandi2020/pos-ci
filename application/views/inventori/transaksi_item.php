@@ -72,7 +72,12 @@
                                         if ($l->source == "Transaksi") {
                                             $satuan_nama = $l->satuan_nama;
                                         } else {
-                                            $satuan = $this->db->select('id_satuan_' . $l->satuan_nama . ' as satuan_baru')->where('id', $l->id_barang)->get('barang')->row_array();
+                                            if ($l->satuan_nama == "konv") {
+                                                $select = "id_satuan_kecil_" . $l->satuan_nama;
+                                            } else {
+                                                $select = "id_satuan_" . $l->satuan_nama;
+                                            }
+                                            $satuan = $this->db->select($select . ' as satuan_baru')->where('id', $l->id_barang)->get('barang')->row_array();
 
                                             $satuan_nama = $satuan['satuan_baru'];
                                         }

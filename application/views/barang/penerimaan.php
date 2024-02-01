@@ -171,6 +171,7 @@
                                         <th width="70" scope="col">Dis2</th>
                                         <th width="70" scope="col">Dis.Rp</th>
                                         <th scope="col">Harga Netto</th>
+                                        <th scope="col">Jumlah</th>
                                         <th scope="col">Gudang</th>
                                         <th width="70" scope="col">Stok awal</th>
                                     </tr>
@@ -260,7 +261,7 @@
                                                 <?= $x->keterangan ?>
                                             </td>
                                             <td>
-                                                <button type="button" class="btn btn-primary btn-square" data-bs-toggle="modal" data-original-title="test" data-bs-target="#penerimaan_edit<?= $x->id_penerimaan ?>"><i class="fa fa-edit"></i></button>
+                                                <!-- <button type="button" class="btn btn-primary btn-square" data-bs-toggle="modal" data-original-title="test" data-bs-target="#penerimaan_edit<?= $x->id_penerimaan ?>"><i class="fa fa-edit"></i></button> -->
                                                 <button type="button" id="<?= $x->id_penerimaan ?>" class="btn btn-danger btn-square delete_penerimaan"><i class="fa fa-trash-o"></i></button>
                                                 <button type="button" class="btn btn-warning btn-square" onclick="location.href='<?= base_url('pembelian/approve/' . $x->id_penerimaan) ?>'"><i class="fa fa-check-square-o"></i></buttpn>
 
@@ -285,7 +286,7 @@
                                                                         <h6>Nama penerimaan</h6>
                                                                         <input type="hidden" value="edit" name="action">
                                                                         <input type="hidden" value="<?= $x->id_penerimaan ?>" name="id_penerimaan">
-                                                                        <input required type="text" placeholder="Bungkus" value="<?= $x->nama_penerimaan ?>" name="penerimaan" class="form-control">
+                                                                        <input required type="text" placeholder="Bungkus" value="" name="penerimaan" class="form-control">
                                                                     </div>
                                                                 </div>
                                                                 <div class="row mt-3">
@@ -363,7 +364,8 @@
                                                 <th width="80" scope="col">Harga</th>
                                                 <th width="80" scope="col">dis1</th>
                                                 <th width="80" scope="col">dis2</th>
-                                                <th width="80" scope="col">harga netto</th>
+                                                <th width="80" scope="col">Harga netto</th>
+                                                <th width="80" scope="col">Jumlah</th>
                                                 <!-- <th width="80" scope="col">gudang</th> -->
                                             </tr>
                                         </thead>
@@ -391,6 +393,9 @@
                                                     </td>
                                                     <td>
                                                         <?= number_format($x->harga_netto, 0, '.', '.') ?>
+                                                    </td>
+                                                    <td>
+                                                        <?= number_format($x->jumlah, 0, '.', '.') ?>
                                                     </td>
                                                     <!-- <td><?= $x->gudang ?></td> -->
                                                 </tr>
@@ -465,7 +470,16 @@
                             }
 
                             $('.harga' + counter + '').val(data.hpp_besar.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1."));
+                            $('.stok_gudang' + counter + '').val(data.stok.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1."));
                             $('.satuan' + counter + '').html(satuann);
+                            // $('.qty' + counter + '').val("1");
+
+
+                            // var row = $('#r' + counter);
+                            // row.find('.qty' + counter).on('input', function() {
+                            //     hitung(this, counter);
+                            // });
+                            cekStok(counter);
                             updateHarga(counter); // Menambah pemanggilan fungsi untuk meng-update harga
                         }
                     });
@@ -549,8 +563,11 @@
                             '<input type="text" name="netto[]" class="form-control uang' + counter + ' netto' + counter + '">' +
                             '</td>' +
                             '<td>' +
+                            '<input type="text" name="jumlah[]" class="form-control uang' + counter + ' jumlah' + counter + '">' +
+                            '</td>' +
+                            '<td>' +
                             '<select id="idg' + counter + '" class="form-control gudang' + counter + '" style="cursor: text;" onchange="cekStok(' + counter + ')">' +
-                            '<option value="">Pilih gudang</option>' +
+                            // '<option value="">Pilih gudang</option>' +
                             <?php if (
                                 $this->uri->segment(2) == 'add_pb'
                             ) {
@@ -736,6 +753,7 @@
                 satuan: $('.satuan' + i + '').val(),
                 harga_satuan: $('.harga' + i + '').val().replace(/[^a-zA-Z0-9 ]/g, ''),
                 netto: $('.netto' + i + '').val().replace(/[^a-zA-Z0-9 ]/g, ''),
+                jumlah: $('.jumlah' + i + '').val().replace(/[^a-zA-Z0-9 ]/g, ''),
                 gudang: $('.gudang' + i + '').val().replace(/[^a-zA-Z0-9 ]/g, ''),
                 stok_awal: $('.stok_awal' + i + '').val().replace(/[^a-zA-Z0-9 ]/g, ''),
             });
@@ -841,9 +859,14 @@
                     // Response dapat berisi data stok yang kemudian ditampilkan pada kolom stok_awal
 
                     var responseData = JSON.parse(response);
-
+                    var stok;
+                    if (responseData !== null) {
+                        stok = responseData.stok;
+                    } else {
+                        stok = 0;
+                    }
                     // Sekarang Anda dapat mengakses propertinya
-                    $('.stok_gudang' + counter).val(responseData.stok);
+                    $('.stok_gudang' + counter).val(stok);
 
                     // Setelah menerima respons stok, panggil fungsi updateHarga
                     updateHarga(counter);
@@ -865,6 +888,7 @@
         var qtyKecil = row.find('.satuan' + counter).find(':selected').data('qty-kecil');
         var qtyBesar = row.find('.satuan' + counter).find(':selected').data('qty-besar');
         var stok = row.find('.stok_gudang' + counter).val(); // Ambil nilai stok_gudang dari input
+        var qty = row.find('.qty' + counter).val(); // Ambil nilai stok_gudang dari input
 
         var jumlah;
         var harga;
@@ -896,22 +920,30 @@
                 }
                 break;
         }
+        var total;
+        if (qty) {
+            total = harga * qty;
+        } else {
+            total = harga;
+        }
 
         row.find('[name="harga[]"]').val(harga.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1."));
         row.find('[name="netto[]"]').val(harga.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1."));
+        row.find('[name="jumlah[]"]').val(total.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1."));
         row.find('.stok_awal' + counter).val(jumlah); // Tampilkan jumlah ke dalam input .qty
         row.find('.qty' + counter).on('input', function() {
             hitung(this, counter);
         });
 
         updateTotalPB(counter);
+        // cekStok(counter);
     }
 
     function updateTotalPB(counter) {
 
         var total_pos_fix = 0;
         for (let t = 1; t <= counter; t++) {
-            total_pos_fix += parseInt($(".netto" + t + "")[0].value.replace(/[^a-zA-Z0-9 ]/g, ''))
+            total_pos_fix += parseInt($(".jumlah" + t + "")[0].value.replace(/[^a-zA-Z0-9 ]/g, ''))
         }
         $('.total_pb').html("Rp." + total_pos_fix.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1."));
     }
@@ -922,13 +954,15 @@
         var harga = parseInt(row.find('[name="harga[]"]').val().replace(/[^a-zA-Z0-9 ]/g, '')) || 0; // Mengambil nilai harga, default ke 0 jika input tidak valid
 
         // Memeriksa apakah nilai harga telah didefinisikan sebelum mencoba replace
-        if (!isNaN(harga)) {
+        if (isNaN(harga)) {
             // Menghitung jumlah dan memasukkan hasil ke input jumlah
-            var jumlah = qty * harga;
-            row.find('[name="netto[]"]').val(jumlah.toLocaleString());
-
-            updateTotalPB(counter);
+            harga = 0;
         }
+        console.log(qty, harga)
+        var jumlah = qty * harga;
+        row.find('[name="jumlah[]"]').val(jumlah.toLocaleString());
+
+        updateTotalPB(counter);
     }
 
     function metode_bayar() {

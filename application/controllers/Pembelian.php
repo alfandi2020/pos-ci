@@ -271,6 +271,7 @@
                     'qty_pb' => $x['qty'],
                     'harga_satuan' => $this->clean($x['harga_satuan']),
                     'harga_netto' => $this->clean($x['netto']),
+                    'jumlah' => $this->clean($x['jumlah']),
                     'gudang' => $x['gudang'],
                 ];
             }
@@ -310,7 +311,7 @@
                 'kode_pb' => $kode_pb,
                 'penerimaan' => $penerimaan,
                 'satuan' => $satuan,
-                'gudang' => $this->db->get('gudang')->result(),
+                'gudang' => $this->db->order_by('id', 'ASC')->get('gudang')->result(),
             ];
 
             // echo '<pre>';
