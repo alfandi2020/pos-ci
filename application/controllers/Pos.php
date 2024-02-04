@@ -68,12 +68,30 @@ class Pos extends CI_Controller
     {
         $id = $this->input->post('id');
 
-        $this->db->where('a.id', $id);
+        $this->db->where('a.id', 4);
         $this->db->from('barang as a');
         $this->db->join('satuan as b', 'a.id=b.barang_id', 'LEFT');
         $this->db->order_by('a.id', 'ASC');
         $data = $this->db->get();
-
+        // echo $data->row_array()['kode_barang'];
+        if (explode(',', $this->session->userdata('tipe_penjualan'))[0] == 'umum') {
+            $harga = $data->row_array()['hargajualk_retail'];
+        }elseif (explode(',', $this->session->userdata('tipe_penjualan'))[0] == 'retail') {
+            $harga = $data->row_array()['hargajualk_retail'];
+        }elseif (explode(',', $this->session->userdata('tipe_penjualan'))[0] == 'grosir') {
+            $harga = $data->row_array()['hargajualk_grosir'];
+        }elseif (explode(',', $this->session->userdata('tipe_penjualan'))[0] == 'partai') {
+            $harga = $data->row_array()['hargajualk_partai'];
+        }
+        $temp = [
+            "id_kasir" => $this->session->userdata('id_user'),
+            "kd_barang" => $data->row_array()['kode_barang'],
+            "barang" => $data->row_array()['nama'],
+            "qty" => 1,
+            "qty_satuan" => $data->row_array()['qty_kecil'],
+            "satuan" => $data->row_array()['id_satuan_kecil'],
+            "harga_satuan" => $harga,
+        ];
         echo json_encode($data->row_array());
     }
     function get_customers()

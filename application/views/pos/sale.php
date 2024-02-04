@@ -1046,8 +1046,6 @@
                                     if(stok >= 1 && stok < data.stok) {
                                         stok = localStorage.getItem( data.nama );
                                     }
-
-
                                     var satuann = ''
                                     if (!data.id_satuan_kecil_konv == "") {
                                         satuann += '<option value=' + data.qty_konv + "," + data.id_satuan_kecil_konv + ',konv,' + data.qty_konv + ' data-stok=' + data.stok + ' data-qty-konv=' + data.qty_konv + '  data-qty-kecil=' + data.qty_kecil + '  data-qty-besar=' + data.qty_besar + '>' + data.id_satuan_kecil_konv + ' </option>';
@@ -1183,31 +1181,6 @@
                                         // var qty = $("input[id='idq" + counter + "']")[0].value * qty_isi.split(',')[0]
                                         var qty = $("input[id='idq" + counter + "']")[0].value
                                        
-
-                                        // if (counter > 1) {
-                                        //     var co = counter - 1;
-                                        //     $('.stock-c'+counter+'').val(stok - qty);
-                                        //     $('.stock'+counter+'').val($('.stock-c'+co+'').val());
-                                        //     // console.log($('.stock-c'+co+'').val())
-                                        // }else{
-                                        // $('.stock' + counter + '').val(stok);
-                                        // $('.stock-c' + counter + '').val(stok - (qty));
-
-                                        // if (data.id_satuan_besar == 'BAL') {
-                                        //     $('.stock' + counter + '').val(data.stok / data.qty_konv);
-                                        //     $('.stock-c' + counter + '').val(Math.ceil(data.stok / data.qty_konv - qty));
-                                        // }else if (data.id_satuan_besar == 'SLOP') {
-                                        //     $('.stock' + counter + '').val(data.stok / data.qty_besar);
-                                        //     $('.stock-c' + counter + '').val(data.stok / data.qty_besar - qty);
-                                        // }elseƒ 
-
-                                        // if(data.id_satuan_besar == 'KARUNG'){
-                                        //     $('.stock' + counter + '').val(Math.floor(data.stok / data.qty_kecil));
-                                        //     $('.stock-c' + counter + '').val(Math.floor(data.stok / data.qty_kecil - qty));
-                                        // }else{
-                                        //     $('.stock' + counter + '').val(data.stok);
-                                        //     $('.stock-c' + counter + '').val(data.stok - qty * data.qty_kecil);
-                                        // }
 
                                         if (tipe_satuan == 'kecil') {
                                             kalkulasi_satuan(tipe_satuan, data.stok, data.qty_kecil, qty, counter, satuan_x[0].value.split(',')[3])
