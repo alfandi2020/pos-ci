@@ -556,6 +556,7 @@
                                                 <div class="col-xl-8">
                                                     <input type="text" readonly class="form-control no_struk" value="<?= date('d') . date('m') . date('Y') . sprintf('%04d', $tgl_urutan['t'] + 1); ?>">
                                                     <input type="hidden" readonly class="form-control edit_transaksi" value="<?= $this->uri->segment(4) ?>">
+                                                    <input type="hidden" class="unik" value="<?= $unik ?>">
                                                 </div>
                                             </div>
                                             <div class="row mt-3">
@@ -1018,6 +1019,26 @@
                 $('.stock1').attr('disabled', true)
                 $('.stock-c1').attr('disabled', true)
                 var counter = 0;
+                var stock_temporary = 0;
+                // function cek_stock_temporary(kode_barang) {
+                //     var stock_temporary = 0;
+                //     return $.ajax({
+                //                 url: "<?= site_url('pos/cek_stock_temp/'); ?>"+kode_barang,
+                //         method: "GET",
+                //         // data: {
+                //         //     kd_barang: kode_barang
+                //         // },
+                //         async: true,
+                //         dataType: 'json',
+                //         // success: function (data) {
+                //         //     // stock_temporary = (data.sisa_stock <= 10 ? 0 : data.sisa_stock);
+                //         //     // console.log(data.sisa_stock)
+                //         //     cek_stock_res(data)
+                //         //     return data
+                //         // }
+                //     })
+                    
+                // }
 
                 function check_pos() {
                     $(".barang" + counter + "").focus();
@@ -1032,20 +1053,24 @@
                             $('.barang' + counter + '').val(ui.item.label);
                             $('.id_barang' + counter + '').val(ui.item.description);
                             var i, j;
+                            // cek_stock_temporary(ui.item.description);
+                            
                             $.ajax({
                                 url: "<?= site_url('pos/search_barang'); ?>",
                                 method: "POST",
                                 data: {
-                                    id: ui.item.description
+                                    id: ui.item.description,
+                                    unik : $('.unik').val()
                                 },
                                 async: true,
                                 dataType: 'json',
                                 success: function(data) {
 
-                                    var stok = localStorage.getItem( data.nama );
-                                    if(stok >= 1 && stok < data.stok) {
-                                        stok = localStorage.getItem( data.nama );
-                                    }
+                                    // var stok = localStorage.getItem( data.nama );
+                                    // if(stok >= 1 && stok < data.sisa_stock) {
+                                    //     stok = localStorage.getItem( data.nama );
+                                    // }
+                                    stok = data.sisa_stock;
                                     var satuann = ''
                                     if (!data.id_satuan_kecil_konv == "") {
                                         satuann += '<option value=' + data.qty_konv + "," + data.id_satuan_kecil_konv + ',konv,' + data.qty_konv + ' data-stok=' + data.stok + ' data-qty-konv=' + data.qty_konv + '  data-qty-kecil=' + data.qty_kecil + '  data-qty-besar=' + data.qty_besar + '>' + data.id_satuan_kecil_konv + ' </option>';
@@ -1145,8 +1170,9 @@
                                                             // }
 
                                     <?php } ?>
-                                    var stok = data.stok
-                                    var min_stok = data.min_stok
+                                    var stok = data.sisa_stock;
+                                    var min_stok = 10
+                                    // console.log(stok, min_stok);
                                     if (stok < min_stok) {
                                         swal({
                                             title: "Opss..!",
@@ -1189,8 +1215,9 @@
                                         } else if (tipe_satuan == 'konv') {
                                             kalkulasi_satuan(tipe_satuan, data.stok, 1, qty, counter)
                                         }
-                                        localStorage.setItem("id_barang", ui.item.description);
-                                        localStorage.setItem("satuan", satuan_xxx);//pengurangan stok dengan localstorage
+                                        
+                                        //localStorage.setItem("id_barang", ui.item.description);
+                                        // localStorage.setItem("satuan", satuan_xxx);//pengurangan stok dengan localstorage
                                         // localStorage.setItem("stok_terakhir", satuan_xxx);
                                         // kalkulasi_satuan(tipe_satuan,data.stok,data.qty_konv,qty,counter)
                                         // }

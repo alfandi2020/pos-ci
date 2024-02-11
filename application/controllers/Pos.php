@@ -58,7 +58,8 @@ class Pos extends CI_Controller
             "transaksi" => $transkasi,
             "transaksi_item" => $transkasi_item,
             "load" => $load,
-            "tgl_urutan" => $tgl_urutan
+            "tgl_urutan" => $tgl_urutan,
+            "unik" => time() . rand(111, 999)
         ];
         // $this->session->unset_userdata('tipe_penjualan');
         $this->load->view('pos/sale', $data);
@@ -67,12 +68,28 @@ class Pos extends CI_Controller
     function search_barang()
     {
         $id = $this->input->post('id');
-
-        $this->db->where('a.id', 4);
+        $set_unik = $this->input->post('unik');
+        $this->db->select('*,CASE WHEN c.kd_barang IS NULL THEN a.stok ELSE FLOOR(a.stok / a.qty_kecil) - SUM(c.qty) END  as sisa_stock');
+        $this->db->where('a.id', $id);
         $this->db->from('barang as a');
         $this->db->join('satuan as b', 'a.id=b.barang_id', 'LEFT');
+        $this->db->join('temporary_transaksi_item as c', 'a.kode_barang=c.kd_barang', 'LEFT');
         $this->db->order_by('a.id', 'ASC');
+        $this->db->group_by('kode_barang');
+        $this->db->group_by('nama');
+        // $cek_unik = $this->db->get_where('temporary_transaksi_item',['unik' => $set_unik])->num_rows();
+        // if ($cek_unik == true) {
+        //     $unik = "AND c.unik='".$set_unik."'";
+        // }else{
+        //     $unik = "";
+        // }
+        // $data = $this->db->query("SELECT *,  
+		// CASE WHEN kd_barang IS NULL THEN b.stok ELSE FLOOR(b.stok / b.qty_kecil) - SUM(tti.qty) END  as sisa_stock
+		// FROM barang b LEFT JOIN temporary_transaksi_item tti ON b.kode_barang = tti.kd_barang
+		// WHERE b.id = '".$id."'
+		// GROUP BY id, nama");
         $data = $this->db->get();
+        // var_dump($data);
         // echo $data->row_array()['kode_barang'];
         if (explode(',', $this->session->userdata('tipe_penjualan'))[0] == 'umum') {
             $harga = $data->row_array()['hargajualk_retail'];
@@ -84,6 +101,7 @@ class Pos extends CI_Controller
             $harga = $data->row_array()['hargajualk_partai'];
         }
         $temp = [
+            "unik" => $set_unik,
             "id_kasir" => $this->session->userdata('id_user'),
             "kd_barang" => $data->row_array()['kode_barang'],
             "barang" => $data->row_array()['nama'],
@@ -91,8 +109,24 @@ class Pos extends CI_Controller
             "qty_satuan" => $data->row_array()['qty_kecil'],
             "satuan" => $data->row_array()['id_satuan_kecil'],
             "harga_satuan" => $harga,
+            "diskon_item" => 0,
+            "jumlah" => 0,
+            "trash" => 0
         ];
         echo json_encode($data->row_array());
+        if ($data->row_array()['stok'] >= 10 ) {
+            $this->db->insert('temporary_transaksi_item', $temp);
+        }
+    }
+    function cek_stock_temp()
+    {
+        $kd_barang = $this->uri->segment(3);
+        $sql = "SELECT  
+        CASE WHEN kd_barang IS NULL THEN stok ELSE FLOOR(stok / qty_kecil) - SUM(qty) END  as sisa_stock
+        FROM barang b LEFT JOIN temporary_transaksi_item tti ON b.kode_barang = tti.kd_barang
+        WHERE b.id = '".$kd_barang."'
+        GROUP BY id, nama";
+        echo json_encode($this->db->query($sql)->row_array());
     }
     function get_customers()
     {
