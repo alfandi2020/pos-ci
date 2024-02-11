@@ -1176,7 +1176,7 @@
                                     if (stok < min_stok) {
                                         swal({
                                             title: "Opss..!",
-                                            text: "Barang " + data.nama + " sisa " + data.stok, //sisa
+                                            text: "Barang " + data.nama + " sisa " + stok, //sisa
                                             icon: "warning",
                                             dangerMode: true,
                                         }).then((r) => {
@@ -1207,14 +1207,19 @@
                                         // var qty = $("input[id='idq" + counter + "']")[0].value * qty_isi.split(',')[0]
                                         var qty = $("input[id='idq" + counter + "']")[0].value
                                        
-
-                                        if (tipe_satuan == 'kecil') {
-                                            kalkulasi_satuan(tipe_satuan, data.stok, data.qty_kecil, qty, counter, satuan_x[0].value.split(',')[3])
-                                        } else if (tipe_satuan == 'besar') {
-                                            kalkulasi_satuan(tipe_satuan, data.stok, data.qty_konv, qty, counter, satuan_x[0].value.split(',')[3])
-                                        } else if (tipe_satuan == 'konv') {
-                                            kalkulasi_satuan(tipe_satuan, data.stok, 1, qty, counter)
+                                        if (data.cek_sisa_stok == 'yes') {
+                                            $('.stock' + counter + '').val(Math.ceil(data.sisa_stock));
+                                            $('.stock-c' + counter + '').val(Math.ceil(data.sisa_stock - qty));
+                                        }else{
+                                            if (tipe_satuan == 'kecil') {
+                                                kalkulasi_satuan(tipe_satuan, data.stok, data.qty_kecil, qty, counter, satuan_x[0].value.split(',')[3])
+                                            } else if (tipe_satuan == 'besar') {
+                                                kalkulasi_satuan(tipe_satuan, data.stok, data.qty_konv, qty, counter, satuan_x[0].value.split(',')[3])
+                                            } else if (tipe_satuan == 'konv') {
+                                                kalkulasi_satuan(tipe_satuan, data.stok, data.qty_konv, qty, counter,satuan_x[0].value.split(',')[3])
+                                            }
                                         }
+                                        
                                         
                                         //localStorage.setItem("id_barang", ui.item.description);
                                         // localStorage.setItem("satuan", satuan_xxx);//pengurangan stok dengan localstorage
@@ -1290,8 +1295,9 @@
                                         }
                                         kalkulasi_satuan(tipe_satuan, data2.stok, cek_satuan_x, j, i, qty_isi.split(',')[3])
                                     } else if (tipe_satuan == 'konv') {
-                                        kalkulasi_satuan(tipe_satuan, data2.stok, 1, j, i)
+                                        kalkulasi_satuan(tipe_satuan, data2.stok, data2.qty_konv, j, i,qty_isi.split(',')[3])
                                     }
+                                    // console.log(tipe_satuan)
                                 }
                             })
 
@@ -1316,19 +1322,18 @@
                     })
 
                     function kalkulasi_satuan(satuan,stok,qty_konv,qty,counter,konv = 0){
-                        var barang = $('.barang' + counter).val();
+                        // var barang = $('.barang' + counter).val();
 
-                        if (localStorage.getItem(barang) >= 1) {
-                            var stok = localStorage.getItem(barang)
-                        }else{
-                            var stok = stok
-                        }
+                        // if (localStorage.getItem(barang) >= 1) {
+                        //     var stok = localStorage.getItem(barang)
+                        // }else{
+                        //     var stok = stok
+                        // }
 
-                        if( satuan == 'besar' && konv == '0' && qty_konv != '0') {
+                        if( (satuan == 'besar' || satuan == 'kecil') && konv == '0' && qty_konv != '0') {
                             konv = qty_konv;
                         }
-
-                        if (konv != '0') { 
+                        if (konv != '0') { // jika lebih dari 0
                             // if(satuan == 'besar' ) { qty_konv = 1}
                             $('.stock' + counter + '').val(Math.ceil(stok / qty_konv));
                             $('.stock-c' + counter + '').val(Math.ceil(stok / qty_konv) - qty);

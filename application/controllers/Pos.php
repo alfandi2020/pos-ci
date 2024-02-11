@@ -69,8 +69,12 @@ class Pos extends CI_Controller
     {
         $id = $this->input->post('id');
         $set_unik = $this->input->post('unik');
-        $this->db->select('*,CASE WHEN c.kd_barang IS NULL THEN a.stok ELSE FLOOR(a.stok / a.qty_kecil) - SUM(c.qty) END  as sisa_stock');
+        $cek_unik = $this->db->get_where('temporary_transaksi_item',['unik' => $set_unik,'id_barang' => $id])->num_rows();
+        $this->db->select('*,CASE WHEN c.kd_barang IS NULL THEN a.stok ELSE FLOOR(a.stok / a.qty_kecil) - SUM(c.qty) END  as sisa_stock,CASE WHEN (c.unik="'.$set_unik.'" and id_barang="'.$id.'") THEN "yes" else "no" END AS cek_sisa_stok ');
         $this->db->where('a.id', $id);
+        if ($cek_unik == true) {
+            $this->db->where('c.unik', $set_unik);
+        }
         $this->db->from('barang as a');
         $this->db->join('satuan as b', 'a.id=b.barang_id', 'LEFT');
         $this->db->join('temporary_transaksi_item as c', 'a.kode_barang=c.kd_barang', 'LEFT');
@@ -100,9 +104,11 @@ class Pos extends CI_Controller
         }elseif (explode(',', $this->session->userdata('tipe_penjualan'))[0] == 'partai') {
             $harga = $data->row_array()['hargajualk_partai'];
         }
+        $stok = $data->row_array()['stok'] / $data->row_array()['qty_kecil'] - 1;
         $temp = [
             "unik" => $set_unik,
             "id_kasir" => $this->session->userdata('id_user'),
+            "id_barang" => $id,
             "kd_barang" => $data->row_array()['kode_barang'],
             "barang" => $data->row_array()['nama'],
             "qty" => 1,
@@ -111,14 +117,15 @@ class Pos extends CI_Controller
             "harga_satuan" => $harga,
             "diskon_item" => 0,
             "jumlah" => 0,
-            "trash" => 0
+            "trash" => 0,
+            "stok_akhir" => $stok
         ];
         echo json_encode($data->row_array());
         if ($data->row_array()['stok'] >= 10 ) {
             $this->db->insert('temporary_transaksi_item', $temp);
         }
     }
-    function cek_stock_temp()
+    function update_temp_transaksi()
     {
         $kd_barang = $this->uri->segment(3);
         $sql = "SELECT  
