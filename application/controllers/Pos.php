@@ -70,29 +70,42 @@ class Pos extends CI_Controller
         $id = $this->input->post('id');
         $set_unik = $this->input->post('unik');
         $cek_unik = $this->db->get_where('temporary_transaksi_item',['unik' => $set_unik,'id_barang' => $id])->num_rows();
-        $this->db->select('*,CASE WHEN c.kd_barang IS NULL THEN a.stok ELSE FLOOR(a.stok / a.qty_kecil) - SUM(c.qty) END  as sisa_stock,CASE WHEN (c.unik="'.$set_unik.'" and id_barang="'.$id.'") THEN "yes" else "no" END AS cek_sisa_stok ');
-        $this->db->where('a.id', $id);
-        if ($cek_unik == true) {
-            $this->db->where('c.unik', $set_unik);
-        }
-        $this->db->from('barang as a');
-        $this->db->join('satuan as b', 'a.id=b.barang_id', 'LEFT');
-        $this->db->join('temporary_transaksi_item as c', 'a.kode_barang=c.kd_barang', 'LEFT');
-        $this->db->order_by('a.id', 'ASC');
-        $this->db->group_by('kode_barang');
-        $this->db->group_by('nama');
-        // $cek_unik = $this->db->get_where('temporary_transaksi_item',['unik' => $set_unik])->num_rows();
+        // $this->db->select('*,CASE WHEN c.kd_barang IS NULL THEN a.stok ELSE FLOOR(a.stok / a.qty_kecil) - SUM(c.qty) END  as sisa_stock,CASE WHEN (c.unik="'.$set_unik.'" and id_barang="'.$id.'") THEN "yes" else "no" END AS cek_sisa_stok ');
+        // $this->db->where('a.id', $id);
         // if ($cek_unik == true) {
-        //     $unik = "AND c.unik='".$set_unik."'";
-        // }else{
-        //     $unik = "";
+        //     $this->db->where('c.unik', $set_unik);
         // }
-        // $data = $this->db->query("SELECT *,  
-		// CASE WHEN kd_barang IS NULL THEN b.stok ELSE FLOOR(b.stok / b.qty_kecil) - SUM(tti.qty) END  as sisa_stock
-		// FROM barang b LEFT JOIN temporary_transaksi_item tti ON b.kode_barang = tti.kd_barang
-		// WHERE b.id = '".$id."'
-		// GROUP BY id, nama");
-        $data = $this->db->get();
+        // $this->db->from('barang as a');
+        // $this->db->join('satuan as b', 'a.id=b.barang_id', 'LEFT');
+        // $this->db->join('temporary_transaksi_item as c', 'a.kode_barang=c.kd_barang', 'LEFT');
+        // $this->db->order_by('a.id', 'ASC');
+        // $this->db->group_by('kode_barang');
+        // $this->db->group_by('nama');
+        // // $cek_unik = $this->db->get_where('temporary_transaksi_item',['unik' => $set_unik])->num_rows();
+        // // if ($cek_unik == true) {
+        // //     $unik = "AND c.unik='".$set_unik."'";
+        // // }else{
+        // //     $unik = "";
+        // // }
+        // // $data = $this->db->query("SELECT *,  
+		// // CASE WHEN kd_barang IS NULL THEN b.stok ELSE FLOOR(b.stok / b.qty_kecil) - SUM(tti.qty) END  as sisa_stock
+		// // FROM barang b LEFT JOIN temporary_transaksi_item tti ON b.kode_barang = tti.kd_barang
+		// // WHERE b.id = '".$id."'
+		// // GROUP BY id, nama");
+        // $data = $this->db->get();
+
+
+        // Custom Query By : HRS //
+        $data = $this->db->query("
+                SELECT *, 
+                FLOOR( (stok / qty_kecil ) ) - (SELECT IFNULL(SUM(qty),0) FROM temporary_transaksi_item WHERE kd_barang = a.kode_barang) as sisa_stock
+                FROM 
+                barang as a LEFT JOIN satuan b ON a.id=b.barang_id
+                WHERE a.id = '".$id."'
+                GROUP BY kode_barang");
+        // End Custom
+
+        
         // var_dump($data);
         // echo $data->row_array()['kode_barang'];
         if (explode(',', $this->session->userdata('tipe_penjualan'))[0] == 'umum') {

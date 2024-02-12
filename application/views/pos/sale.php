@@ -1066,18 +1066,19 @@
                                 dataType: 'json',
                                 success: function(data) {
 
-                                    // var stok = localStorage.getItem( data.nama );
-                                    // if(stok >= 1 && stok < data.sisa_stock) {
-                                    //     stok = localStorage.getItem( data.nama );
-                                    // }
-                                    stok = data.sisa_stock;
+                                   
+
                                     var satuann = ''
                                     if (!data.id_satuan_kecil_konv == "") {
+                                        localStorage.setItem( data.nama, data.sisa_stock * data.qty_konv );
+
                                         satuann += '<option value=' + data.qty_konv + "," + data.id_satuan_kecil_konv + ',konv,' + data.qty_konv + ' data-stok=' + data.stok + ' data-qty-konv=' + data.qty_konv + '  data-qty-kecil=' + data.qty_kecil + '  data-qty-besar=' + data.qty_besar + '>' + data.id_satuan_kecil_konv + ' </option>';
                                         // cek_satuan = data.id_satuan_kecil_konv;
                                         // cek_isi_satuan = data.qty_konv;
                                     }
                                     if (!data.id_satuan_kecil == "") {
+                                        localStorage.setItem( data.nama, data.sisa_stock * data.qty_kecil );
+
                                         satuann += '<option value=' + data.qty_kecil + "," + data.id_satuan_kecil + ',kecil,' + data.qty_konv + ' data-stok=' + data.stok + ' data-qty-konv=' + data.qty_konv + '  data-qty-kecil=' + data.qty_kecil + '  data-qty-besar=' + data.qty_besar + '>' + data.id_satuan_kecil + ' </option>';
                                         // cek_satuan = data.id_satuan_kecil;
                                         // cek_isi_satuan = data.qty_kecil;
@@ -1170,7 +1171,7 @@
                                                             // }
 
                                     <?php } ?>
-                                    var stok = data.sisa_stock;
+                                    var stok = localStorage.getItem(data.nama);
                                     var min_stok = 10
                                     // console.log(stok, min_stok);
                                     if (stok < min_stok) {
@@ -1285,6 +1286,8 @@
                                 async: true,
                                 dataType: 'json',
                                 success: function(data2) {
+                                    
+
                                     if (tipe_satuan == 'kecil') {
                                         kalkulasi_satuan(tipe_satuan, data2.stok, data2.qty_kecil, j, i, qty_isi.split(',')[3])
                                     } else if (tipe_satuan == 'besar') {
@@ -1322,13 +1325,16 @@
                     })
 
                     function kalkulasi_satuan(satuan,stok,qty_konv,qty,counter,konv = 0){
-                        // var barang = $('.barang' + counter).val();
+                        var barang = $('.barang' + counter).val();
 
-                        // if (localStorage.getItem(barang) >= 1) {
-                        //     var stok = localStorage.getItem(barang)
-                        // }else{
-                        //     var stok = stok
-                        // }
+                        if (localStorage.getItem(barang) >= 1) {
+                            var stok = localStorage.getItem(barang)
+                        }else{
+                            var stok = stok
+                        }
+
+                        console.log(satuan, stok, qty_konv, qty);
+
 
                         if( (satuan == 'besar' || satuan == 'kecil') && konv == '0' && qty_konv != '0') {
                             konv = qty_konv;
@@ -1337,9 +1343,13 @@
                             // if(satuan == 'besar' ) { qty_konv = 1}
                             $('.stock' + counter + '').val(Math.ceil(stok / qty_konv));
                             $('.stock-c' + counter + '').val(Math.ceil(stok / qty_konv) - qty);
+
+                            localStorage.setItem(barang, Math.ceil(stok  - qty_konv ) );
                         } else {
                             $('.stock' + counter + '').val(Math.ceil(stok));
                             $('.stock-c' + counter + '').val(Math.ceil(stok - qty));
+
+                            localStorage.setItem(barang, Math.ceil(stok - qty ));
                         }
                     }
 
@@ -2321,9 +2331,9 @@
                                 // }
                             }
 
-                                if( $(".barang" +  ( counter - 1)  ).val() !== "" && counter > 1) {
-                                    localStorage.setItem( $(".barang" + ( counter - 1) ).val(), $(".stock-c" + ( counter - 1) ).val() );
-                                }
+                                // if( $(".barang" +  ( counter - 1)  ).val() !== "" && counter > 1) {
+                                //     localStorage.setItem( $(".barang" + ( counter - 1) ).val(), $(".stock-c" + ( counter - 1) ).val() );
+                                // }
 
                             $('.delete_item').click(function() {
                                 e.preventDefault();
