@@ -1047,6 +1047,9 @@
                     var qty = $(".qty" + counter + "")
                     var diskon_item = $(".diskon_item" + counter + "")
                     var satuan_x = $(".satuan" + counter + "")
+
+                                                                
+
                     $(".barang" + counter + "").autocomplete({
                         source: data,
                         select: function(event, ui) {
@@ -1065,9 +1068,6 @@
                                 async: true,
                                 dataType: 'json',
                                 success: function(data) {
-
-                                   
-
                                     var satuann = ''
                                     if (!data.id_satuan_kecil_konv == "") {
                                         localStorage.setItem( data.nama, data.sisa_stock * data.qty_konv );
@@ -1172,6 +1172,9 @@
 
                                     <?php } ?>
                                     var stok = localStorage.getItem(data.nama);
+
+                                    localStorage.setItem(data.nama + '_' + counter, 1);
+                                    localStorage.setItem('barang_' + counter, ui.item.description);
                                     var min_stok = 10
                                     // console.log(stok, min_stok);
                                     if (stok < min_stok) {
@@ -1212,12 +1215,13 @@
                                             $('.stock' + counter + '').val(Math.ceil(data.sisa_stock));
                                             $('.stock-c' + counter + '').val(Math.ceil(data.sisa_stock - qty));
                                         }else{
+                                            
                                             if (tipe_satuan == 'kecil') {
-                                                kalkulasi_satuan(tipe_satuan, data.stok, data.qty_kecil, qty, counter, satuan_x[0].value.split(',')[3])
+                                                kalkulasi_satuan(tipe_satuan, stok, data.qty_kecil, qty, counter, satuan_x[0].value.split(',')[3])
                                             } else if (tipe_satuan == 'besar') {
-                                                kalkulasi_satuan(tipe_satuan, data.stok, data.qty_konv, qty, counter, satuan_x[0].value.split(',')[3])
+                                                kalkulasi_satuan(tipe_satuan, stok, data.qty_konv, qty, counter, satuan_x[0].value.split(',')[3])
                                             } else if (tipe_satuan == 'konv') {
-                                                kalkulasi_satuan(tipe_satuan, data.stok, data.qty_konv, qty, counter,satuan_x[0].value.split(',')[3])
+                                                kalkulasi_satuan(tipe_satuan, stok, data.qty_konv, qty, counter,satuan_x[0].value.split(',')[3])
                                             }
                                         }
                                         
@@ -1239,13 +1243,16 @@
                         }
                     });
 
-                    qty.keyup(function() {
+                    qty.focusout(function() {
                         var id = $(this).val();
                         i = this.id.slice(3);
                         j = this.value;
                         var qty_isi = satuan_x[0].value //isi satuan
                         var diskon_item = $("input[id='idd" + i + "']")[0].value
-                        var stock_c = $('.stock-c' + i + '').val()
+                        var stock_c = $('.stock-c' + i + '').val();
+                        var barang_lcl_storage = localStorage.getItem( $('.barang' + i).val() + '_' + i);
+                        var setBarangLocalStor = localStorage.getItem( 'barang_' + i);
+                        // var setBarangLocalStor = localStorage()
                         // var stock = $('.stock' + i + '').val()
                         if (stock_c < 0) {
                             swal({
@@ -1262,7 +1269,6 @@
                                     // })
                                 }
                             });
-
                         } else {
                             // var jumlah = $('.harga'+i+'').val().replace(/[^a-zA-Z0-9 ]/g, '') * j * qty_isi.split(',')[0] - diskon_item.replace(/[^a-zA-Z0-9 ]/g, '')
                             var jumlah = $('.harga' + i + '').val().replace(/[^a-zA-Z0-9 ]/g, '') * j - diskon_item.replace(/[^a-zA-Z0-9 ]/g, '')
@@ -1276,30 +1282,46 @@
                             var qty_isi = $(".satuan" + i + "")[0].value //qty isi satuan
                             var tipe_satuan = qty_isi.split(',')[2];
                             var id_barangg = $('.id_barang' + i + '').val();
-
+                            
+                            
                             $.ajax({
                                 url: "<?= site_url('pos/search_barang'); ?>",
                                 method: "POST",
                                 data: {
-                                    id: id_barangg
+                                    id: id_barangg,
+                                    cek : 'selain_search_barang',
+                                    qty : j,
+                                    qty_satuan : tipe_satuan
                                 },
                                 async: true,
                                 dataType: 'json',
                                 success: function(data2) {
-                                    
-
-                                    if (tipe_satuan == 'kecil') {
-                                        kalkulasi_satuan(tipe_satuan, data2.stok, data2.qty_kecil, j, i, qty_isi.split(',')[3])
-                                    } else if (tipe_satuan == 'besar') {
-                                        if (data2.qty_konv != '0') {
-                                            var cek_satuan_x = data2.qty_konv;
+                                        var barang = $('.barang' + i ).val();
+                                        if(id_barangg != setBarangLocalStor) {
+                                            stock = data2.sisa_stock;
                                         } else {
-                                            var cek_satuan_x = data2.qty_kecil;
+                                            stock = localStorage.getItem(barang);
                                         }
-                                        kalkulasi_satuan(tipe_satuan, data2.stok, cek_satuan_x, j, i, qty_isi.split(',')[3])
-                                    } else if (tipe_satuan == 'konv') {
-                                        kalkulasi_satuan(tipe_satuan, data2.stok, data2.qty_konv, j, i,qty_isi.split(',')[3])
-                                    }
+                                        
+                                        console.log(stock, data2.sisa_stock, localStorage.getItem(barang));
+
+                                        if(j != barang_lcl_storage) {
+                                            if (tipe_satuan == 'kecil') {
+                                                kalkulasi_satuan(tipe_satuan, stock, data2.qty_kecil, j, i, qty_isi.split(',')[3])
+                                            } else if (tipe_satuan == 'besar') {
+                                                if (data2.qty_konv != '0') {
+                                                    var cek_satuan_x = data2.qty_konv;
+                                                } else {
+                                                    var cek_satuan_x = data2.qty_kecil;
+                                                }
+                                                kalkulasi_satuan(tipe_satuan, stock, cek_satuan_x, j, i, qty_isi.split(',')[3])
+                                            } else if (tipe_satuan == 'konv') {
+                                                kalkulasi_satuan(tipe_satuan, stock, data2.qty_konv, j, i,qty_isi.split(',')[3])
+                                            }
+                                        }
+
+                                        localStorage.setItem( $('.barang' + i).val() + '_' + i, j);
+                                
                                     // console.log(tipe_satuan)
                                 }
                             })
@@ -1375,7 +1397,8 @@
                                 method: "POST",
                                 url: "<?= site_url('pos/search_barang'); ?>",
                                 data: {
-                                    id: id_barangg
+                                    id: id_barangg,
+                                    cek : 'selain_search_barang',
                                 },
                                 async: true,
                                 dataType: 'json',
@@ -1960,6 +1983,7 @@
                                             $('.stock-c' + i + '').val(Math.ceil(stok - qty));
                                         }
                                     }
+                                    
                                     satuan_x.change(function() {
                                         var id = $(this).val();
                                         i = this.id.slice(3);

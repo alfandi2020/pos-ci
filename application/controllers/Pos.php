@@ -69,6 +69,8 @@ class Pos extends CI_Controller
     {
         $id = $this->input->post('id');
         $set_unik = $this->input->post('unik');
+        $cek = $this->input->post('cek');
+        $qty = $cek == 'qty' ? $this->input->post('qty') : 1;
         $cek_unik = $this->db->get_where('temporary_transaksi_item',['unik' => $set_unik,'id_barang' => $id])->num_rows();
         // $this->db->select('*,CASE WHEN c.kd_barang IS NULL THEN a.stok ELSE FLOOR(a.stok / a.qty_kecil) - SUM(c.qty) END  as sisa_stock,CASE WHEN (c.unik="'.$set_unik.'" and id_barang="'.$id.'") THEN "yes" else "no" END AS cek_sisa_stok ');
         // $this->db->where('a.id', $id);
@@ -98,7 +100,7 @@ class Pos extends CI_Controller
         // Custom Query By : HRS //
         $data = $this->db->query("
                 SELECT *, 
-                FLOOR( (stok / qty_kecil ) ) - (SELECT IFNULL(SUM(qty),0) FROM temporary_transaksi_item WHERE kd_barang = a.kode_barang) as sisa_stock
+                FLOOR( (stok / qty_kecil ) ) - (SELECT IFNULL(SUM(qty),0) FROM temporary_transaksi_item WHERE kd_barang = a.kode_barang AND unik IS NOT NULL) as sisa_stock
                 FROM 
                 barang as a LEFT JOIN satuan b ON a.id=b.barang_id
                 WHERE a.id = '".$id."'
@@ -124,7 +126,7 @@ class Pos extends CI_Controller
             "id_barang" => $id,
             "kd_barang" => $data->row_array()['kode_barang'],
             "barang" => $data->row_array()['nama'],
-            "qty" => 1,
+            "qty" => $qty,
             "qty_satuan" => $data->row_array()['qty_kecil'],
             "satuan" => $data->row_array()['id_satuan_kecil'],
             "harga_satuan" => $harga,
@@ -134,7 +136,14 @@ class Pos extends CI_Controller
             "stok_akhir" => $stok
         ];
         echo json_encode($data->row_array());
-        if ($data->row_array()['stok'] >= 10 ) {
+        if ($cek == 'selain_search_barang') {
+            $this->db->where('satuan',$this->input->post('qty_satuan'));
+            $this->db->where('kd_barang', $id);
+            $this->db->where('unik',$set_unik);
+            $this->db->set('qty');
+            $this->db->update('temporary_transaksi_item');
+        }
+        if ($data->row_array()['stok'] >= 10 && $cek != 'selain_search_barang') {
             $this->db->insert('temporary_transaksi_item', $temp);
         }
     }
