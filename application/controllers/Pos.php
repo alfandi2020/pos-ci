@@ -70,6 +70,7 @@ class Pos extends CI_Controller
         $id = $this->input->post('id');
         $set_unik = $this->input->post('unik');
         $cek = $this->input->post('cek');
+        $satuan = $this->input->post('satuan');
         $qty = $cek == 'qty' ? $this->input->post('qty') : 1;
         $cek_unik = $this->db->get_where('temporary_transaksi_item',['unik' => $set_unik,'id_barang' => $id])->num_rows();
         // $this->db->select('*,CASE WHEN c.kd_barang IS NULL THEN a.stok ELSE FLOOR(a.stok / a.qty_kecil) - SUM(c.qty) END  as sisa_stock,CASE WHEN (c.unik="'.$set_unik.'" and id_barang="'.$id.'") THEN "yes" else "no" END AS cek_sisa_stok ');
@@ -146,6 +147,10 @@ class Pos extends CI_Controller
         if ($data->row_array()['stok'] >= 10 && $cek != 'selain_search_barang') {
             $this->db->insert('temporary_transaksi_item', $temp);
         }
+    }
+
+    function update_stock($qty_satuan) {
+        
     }
     function update_temp_transaksi()
     {

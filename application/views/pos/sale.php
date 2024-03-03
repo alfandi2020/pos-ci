@@ -1262,7 +1262,7 @@
                                 dangerMode: true,
                             }).then((r) => {
                                 if (r) {
-                                    // location.reload();
+                                    // locatio  n.reload();
                                     //   $('input[id="idq'+i+'"').val($('p.stock'+i+'').text() - $('p.stock-c'+i+'').text())
                                     // swal({
                                     //   text : "oke"
@@ -1320,7 +1320,7 @@
                                             }
                                         }
 
-                                        localStorage.setItem( $('.barang' + i).val() + '_' + i, j);
+                                        // localStorage.setItem( $('.barang' + i).val() + '_' + i, j);
                                 
                                     // console.log(tipe_satuan)
                                 }
@@ -1398,11 +1398,15 @@
                                 url: "<?= site_url('pos/search_barang'); ?>",
                                 data: {
                                     id: id_barangg,
+                                    qty_satuan: tipe_satuan,
+                                    qty : qty,
                                     cek : 'selain_search_barang',
                                 },
                                 async: true,
                                 dataType: 'json',
                                 success: function(data2) {
+
+                                    console.log(data2);
 
                                     <?php if (strtolower(explode(',', $this->session->userdata('tipe_penjualan'))[0]) == 'umum') { ?>
                                             if (j.split(',')[1] == data2.id_satuan_kecil) {
